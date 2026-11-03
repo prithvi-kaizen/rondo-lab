@@ -1,5 +1,7 @@
 # Verification record
 
+Historical v1 record. See [current v2 verification](V2_VERIFICATION.md) for the upgraded engine, populations and browser checks.
+
 Verified locally on 3 November 2026, macOS / Apple Silicon, Python 3.13.5, Node 24.11.1. CPU training; no GPU required.
 
 ## Automated checks

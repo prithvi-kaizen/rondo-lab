@@ -1,12 +1,12 @@
-# Rondo Lab
+# Rondo Lab v2
 
-A locally runnable 6v2 football rondo with continuous ball physics, scripted football agents, shared-policy PPO, recorded replays and an interactive React pitch.
+A local football and competitive reinforcement-learning laboratory. Watch a physical 6v2 rondo, train possession and pressing policies against frozen opponents, and compare their actual decisions across generations.
 
-Six possession players keep the ball from two pressing defenders. Start with the scripted drill, inspect a passing lane, change defender speed, then train a policy and compare its decisions from the same initial state.
+The default is a **12 × 12m rectangular training grid**. Easy is 15m; hard is 10m. Outside players adjust within perimeter regions. Defenders press, cover and pursue interception points or likely receivers inferred from the **visible ball trajectory**. No hidden upcoming pass target is supplied to defenders.
 
-## Install and launch
+## Launch
 
-Requires Python 3.11+, [uv](https://docs.astral.sh/uv/) and Node.js 22+ (24 also works).
+Requires Python 3.11+, uv, Node.js 22+ and npm. Verified on Apple Silicon with Python 3.13.5 / Node 24.
 
 ```bash
 uv sync
@@ -14,122 +14,139 @@ npm ci --prefix frontend
 ./scripts/dev.sh
 ```
 
-Open [Rondo Lab](http://127.0.0.1:5173). The app generates and plays a **scripted 6v2 episode immediately**. No model training is required. Backend docs are at [FastAPI docs](http://127.0.0.1:8000/docs).
+Open [Rondo Lab](http://127.0.0.1:5173). Backend API documentation: [port 8000/docs](http://127.0.0.1:8000/docs). The scripted drill starts immediately without models. Continuous session advances to another real seeded episode after a turnover; disable it to inspect one episode. Space pauses outside form controls; right arrow steps a frame. Pitch focus removes surrounding panels.
 
-For a single local server after building:
+For one local server after building:
 
 ```bash
 npm run build --prefix frontend
 uv run uvicorn rondolab.api:app --host 127.0.0.1 --port 8000
 ```
 
-Open [the built app](http://127.0.0.1:8000). Restart the backend after the first frontend build so the static mount is registered. Bind to localhost: this personal application has no authentication and is not intended for network deployment.
+Open [the built app](http://127.0.0.1:8000). Restart the backend after the first build so the static mount is registered. This is a localhost application without network authentication.
 
-## First experiment
+## What changed
 
-1. Watch the scripted match in Playground. A completed episode stops on a turnover or its time limit. Use Loop to repeat it, or New episode for another seeded initial state.
-2. Open Session to change defender speed, ball speed, seed or strategy, then Generate episode.
-3. Select a player to inspect position, velocity, facing and chosen action. Scripted players have no neural probabilities.
-4. Open Training, select possession/basic and start a short 4096-step PPO run.
-5. Open Watch AI Learn. Select the actual initialization, intermediate or final checkpoint, and optionally compare a second policy. Both start from the **same seed and current configuration**, with one synchronized timeline. Changing settings creates a deliberately different evaluation drill.
-6. Inspect Experiments for actual logged evaluations. Final means training stopped, not that the policy is strong.
+The old heuristic passed exclusively to adjacent players, averaged 5.32m from the nearest defender and suffered no interceptions in ten diagnostic episodes. The v2 calibration used the **same 2.3m/s defender speed** and produced interceptions in 7/10 initial and 7/10 held-out scenarios. Adjacent passing fell to about 42% in the initial scenarios. This is a tunable toy-football balance, not a proven optimal drill.
 
-Space toggles playback when focus is outside a form control. Right arrow advances one 20 Hz frame. Timeline, speed, restart, episode selection, player inspection and all tactical layers operate on recorded states.
+The full [diagnosis](docs/RONDO_V2_DIAGNOSIS.md) separates formation, receiver selection, ball/reception timing, defender targeting, rewards and weak training. [Verification](docs/V2_VERIFICATION.md) records tests, actual training outcomes, browser checks and limitations.
 
-## CLI
+## Adversarial Training Lab
+
+Use the dedicated sidebar page to:
+
+- Train possession, defenders or alternating teams in a separate local process.
+- Select Smoke, Standard or Extended budgets; change steps, environments, block length, reward design, curriculum, evaluation count and compute device.
+- Inspect which team is learning, which is frozen, the sampled opponent and the recorded population.
+- Pause or stop at a safe PPO block boundary and save a full session. Resume compatible sessions with both optimizers, RNG state and historical opponents restored.
+- Select a **population run** and an actual recorded generation. Watch a possession/defending pair from the same seed, or evaluate a bounded checkpoint-versus-checkpoint matrix.
+- Run geometry, defensive coordination, opponent adaptation, generation and reward-policy comparisons. Reward comparisons use actual selected policy weights; they do not fabricate ablations or retrain automatically.
+
+Generations 0, 5 and 10 exist locally in the verified `v2-release` run. Checkpoints are generated files and stay out of Git. On a clean clone, checkpoint lists are empty until training runs. Missing stages are explicitly identified. Select the population run before selecting generations; this prevents confusing unrelated training lineages.
+
+Watch AI Learn supports a fixed opposing checkpoint and synchronized split-screen possession comparisons. Inspection shows recorded observations/masks, chosen and previous actions, genuine probabilities/value estimates when available, pressure, receiving readiness, controller targets and interception attempts. Scripted policies explicitly have no neural probabilities.
+
+## Training commands
 
 ```bash
-# Scripted episode, with actual states, events and metrics
-uv run python -m rondolab.demo --seed 42 --output examples/scripted.json
+# Reproduce the verified ten-generation adversarial run
+uv run python -m rondolab.train --mode both --scenario adaptive \
+  --timesteps 5120 --block-steps 256 --num-envs 2 --evaluation-episodes 2 \
+  --output experiments/v2-release
 
-# Single-agent carrier decisions through a parameter-shared passing policy
-uv run python -m rondolab.train --mode possession --scenario basic --timesteps 4096 \
-  --checkpoint-interval 1024 --seed 42 --output experiments/possession-smoke
+# Short end-to-end check (4 generations with these defaults)
+uv run python -m rondolab.train --mode both --scenario adaptive --preset smoke \
+  --output experiments/my-smoke
 
-# All six possession agents learn passing and support actions
-uv run python -m rondolab.train --mode possession --scenario adaptive --timesteps 100000 \
-  --seed 42 --output experiments/adaptive
+# Fixed-opponent possession / pressing runs
+uv run python -m rondolab.train --mode possession --scenario adaptive \
+  --timesteps 512 --block-steps 128 --num-envs 2 --seed 72 \
+  --output experiments/my-possession
+uv run python -m rondolab.train --mode pressing --scenario adaptive \
+  --timesteps 512 --block-steps 128 --num-envs 2 --seed 73 \
+  --output experiments/my-pressing
 
-# Two defenders learn tactical decisions against scripted possession
-uv run python -m rondolab.train --mode pressing --timesteps 100000 \
-  --seed 42 --output experiments/pressing
+# Carrier decisions with rule-based off-ball support
+uv run python -m rondolab.train --mode possession --scenario basic \
+  --timesteps 4096 --output experiments/basic-passing
 
-# Alternating team updates against a frozen opponent pool
-uv run python -m rondolab.train --mode both --scenario adaptive --timesteps 100000 \
-  --seed 42 --output experiments/selfplay
+# Moderate / extended experiments; quality is not guaranteed
+uv run python -m rondolab.train --mode both --scenario adaptive --preset standard \
+  --curriculum-stage 5 --output experiments/standard --device auto
+uv run python -m rondolab.train --mode both --scenario adaptive --preset extended \
+  --curriculum-stage 1 --auto-curriculum --evaluation-episodes 10 \
+  --output experiments/extended-curriculum
 
-# Longer training; strength must be evaluated rather than assumed
-uv run python -m rondolab.train --mode possession --timesteps 500000 \
-  --checkpoint-interval 10000 --config configs/long_training.json \
-  --output experiments/long --device auto
-
-# Fixed evaluation seeds 10001 onward, with no updates
-uv run python -m rondolab.evaluate \
-  --checkpoint experiments/possession-smoke/possession-004096.pt \
-  --episodes 10 --output experiments/possession-smoke/evaluation.json
-uv run python -m rondolab.evaluate --baseline random --episodes 10
-uv run python -m rondolab.evaluate --baseline simple --episodes 10
-uv run python -m rondolab.evaluate --baseline heuristic --episodes 10
-
-# Export a replay that can be watched without the checkpoint
-uv run python -m rondolab.replay \
-  --checkpoint experiments/possession-smoke/possession-004096.pt \
-  --seed 42 --output examples/saved-policy.json
+# Resume to a larger TOTAL budget, preserving original optimizer/settings/population
+uv run python -m rondolab.train --resume experiments/my-smoke/session.pt \
+  --timesteps 4096 --output experiments/my-smoke-continued
 ```
 
-Use the same configuration for baseline comparisons. The Python `evaluate(config=...)` API accepts a validated Config. Each run writes initial weights, numbered checkpoints, `metrics.json`, and atomic `status.json`. CLI stdout contains one JSON record per PPO update. The UI manages one separate training subprocess and prevents overlapping jobs. Stopping training keeps completed checkpoints. Large generated files and model weights stay outside Git. On a fresh clone, checkpoint lists are honestly empty until training runs.
+Use a new output directory for every run/resume. Existing actor checkpoints are never overwritten. Initial weights are saved before optimization. Each block saves an immutable actor snapshot, `session.pt`, `population.json`, `metrics.json` and atomic `status.json`. `session.pt` is the latest resumable boundary within that run; resuming writes to a new run directory and retains the original session.
 
-## Architecture
+Smoke = 2048 decisions, blocks of 256, two worlds. Standard = 100,000 / 1024 / four worlds. Extended = 1,000,000 / 2048 / four worlds. All are configurable. Physics runs serially per world, with batched neural inference and separate per-environment/per-agent GAE traces. A step counts a world decision, not an agent sample.
 
-See [the architecture and implementation plan](docs/ARCHITECTURE.md).
+The local worker lock prevents conflicting CLI/API training processes. Programmatic `train()` calls are intended for controlled experiments/tests. Pause/stop requests finish the current rollout/update/evaluation and checkpoint it. An abrupt crash can lose an incomplete block; the previous complete session remains available. CPU is verified; CUDA/MPS selection is implemented but was not benchmarked here.
 
-- `rondolab/simulation`: deterministic NumPy physical world and validated SI-unit configuration.
-- `rondolab/environments`: PettingZoo ParallelEnv for eight agents and Gymnasium wrapper for carrier control; masks and decomposed team rewards.
-- `rondolab/policies`: football heuristics and a small PyTorch actor/local value network.
-- `rondolab/rl`: PPO and explicit curriculum recommendations.
-- `rondolab/train.py`: masked rollout collection, team trajectories, GAE, optimizer, frozen opponent pool and logging.
-- `rondolab/evaluate.py`: held-out scenario seeds, baseline comparison and evaluation without updates.
-- `rondolab/replay`: versioned state recordings, events, observations, actions and provenance.
-- `rondolab/api.py`: local JSON APIs and training process lifecycle.
-- `frontend`: React/TypeScript/SVG. Linear interpolation at requestAnimationFrame cadence; shortest-angle interpolation for facing. Render speed does not change physics.
+## Evaluation and replay
 
-This is independent PPO with parameter sharing inside each team, using local observations and local critics. It is not centralized-critic MAPPO and does not use Stable-Baselines3 as a multi-agent trainer. Basic possession uses the current carrier as a single decision maker; adaptive possession and defending retain separate per-agent advantage traces. A step is one shared-world policy decision (four 0.05-second physics ticks by default), not one player sample. Competitive updates alternate every 256 decisions with frozen opponents sampled deterministically from the latest five snapshots.
+```bash
+# Scripted state recording and football diagnostic flags
+uv run python -m rondolab.demo --seed 44 --output examples/v2-scripted.json
+uv run python -m rondolab.diagnostics --episodes 10 --output experiments/diagnostics.json
 
-## Football mechanics and rules
+# Actual checkpoint-pair replay
+uv run python -m rondolab.replay \
+  --checkpoint experiments/v2-release/possession-004864.pt \
+  --opponent-checkpoint experiments/v2-release/pressing-005120.pt \
+  --seed 42 --output examples/v2-generation10.json
 
-The default rondo area is 15 × 15 m. Six anchors form a hexagon with configurable support freedom. Players accelerate, decelerate, turn at a bounded rate, avoid overlap and stay inside the training area. All tactical actions use the same steering controller. Defensive strategies are chase, nearest press with central recovery, lane blocking, and cover/press. Defenders react to current observable ball motion, not future actions.
+# Matched G0 / G5 / G10 evaluation (nine pairings, same held-out seeds)
+uv run python -m rondolab.matchups \
+  --possession experiments/v2-release/possession-000000.pt \
+               experiments/v2-release/possession-002304.pt \
+               experiments/v2-release/possession-004864.pt \
+  --defending experiments/v2-release/pressing-000000.pt \
+              experiments/v2-release/pressing-002560.pt \
+              experiments/v2-release/pressing-005120.pt \
+  --episodes 5 --output experiments/generation-matrix.json
 
-Passes leave from the current controlled-ball position and travel through continuous space with rolling resistance. Passing error depends on pressure and orientation. Turning can delay release. Swept segment tests catch defenders inside a flight path. Receptions, poor first touches, loose recovery, tackles, interceptions, out-of-bounds and holding-limit turnovers are distinct events. Control converges continuously to the receiver's feet rather than teleporting there.
+# Reproduce fixed-team smoke baselines and the stored evaluation report
+# Requires the 5120-step v2-release run above.
+uv run python scripts/verify_v2.py --run experiments/v2-release
+```
 
-Touch limits are explicit **drill approximations**: one touch imposes a 0.7-second release window, two touches 1.2 seconds, unlimited uses the configured maximum hold. Scripted one-touch players choose earlier releases. These are timing rules, not modeled foot-contact counts. Pair limits restrict repeated passes within the same unordered pair; 0 disables them. Fixed 6v2 player counts and action encodings are intentional.
+`scripted` can replace a path in either matrix list. Optional `--config configs/standard_v2.json` fixes evaluation physics explicitly. Per-update **fixed benchmark** evaluation uses the original run's drill configuration and cover/press defenders, independent of whichever opponent/geometry was sampled for training. Historical-opponent and curriculum evaluations are separate. Evaluation cannot update weights.
 
-## Observations, actions and rewards
+Possession success means surviving 15 seconds **or** completing ten passes. Duration, completion, interceptions, pressure and passing distributions remain visible so success rate cannot hide poor football. Interception counts/frequencies, censored regain times, receiver choices, completed passing networks, pressured receptions, successful split passes, defender movement and coordination proxies come from state/event logs. See metric definitions in [architecture](docs/ARCHITECTURE.md).
 
-Each actor receives 90 normalized features: own pose and velocity, relative ball motion, per-player relative positions/velocities/orientation/team/possession, distances and boundaries. No hidden intentions or future actions are exposed. See `docs/ARCHITECTURE.md` for the 12-action encoding. Self passes, unavailable passes and unused defender actions are masked before sampling and optimization.
+**Observed learning quality:** the short runs verify PPO, freezing, sampling, checkpointing, resume and evaluation. They do **not** demonstrate useful improvement by both teams. Later possession policies can stall until the holding limit. Learned defenders can beat earlier neural possession while failing against the strong scripted baseline. These failures are visible in the matrix and diagnostic flags. Full measured results are in [V2_EVALUATION.json](docs/V2_EVALUATION.json). Longer runs and multiple independent training seeds are required before claiming tactical learning.
 
-All possession players share the football reward; defenders receive its negative. An invalid action penalizes its actor separately.
+## Physics, actions and rewards
 
-| Component | Sparse | Moderate | Heavy |
+Fixed 20 Hz physics and default 5 Hz decisions. Ball passes travel continuously with resistance and first relative-circle-entry collision tests against moving players. Receiving delay depends on orientation/pressure; release requires preparation and a finite body turn. Poor control can leave a loose ball. Defenders use finite acceleration/turning and predict feasible contacts from current ball motion. An unsuccessful interception attempt does not guarantee a turnover.
+
+V2 possession actions: 0 hold, 1–6 pass to an eligible absolute receiver ID, 7/8 adjust left/right in the assigned region, 9 offer a receiving angle, 10 separate from pressure, 11 return to anchor. Basic passing trains the carrier only, with scripted support. Adaptive learning trains all six. Defenders: press, cover, block one of six receiver lanes, recover, pursue observable ball motion, hold shape or close a receiver. Both teams have shared weights within their own team, separate local critics and no GAN loss.
+
+| Reward | Sparse | Moderate | Heavy |
 |---|---:|---:|---:|
-| Completed pass | +1 | +1 | +1.5 |
-| Possession per second | 0 | +0.02 | +0.02 |
-| Turnover | -loss_penalty | -loss_penalty | -loss_penalty |
-| Pressure at carrier | 0 | 0 | -0.01 × max(0, 2-distance) per decision |
-| Invalid action | -0.05 | -0.05 | -0.05 |
+| Possession time per second | 0 | +0.10 | +0.10 |
+| Completed legal pass | 0 | +0.08 | +0.40 |
+| Turnover | -4 default | -4 default | -4 default |
+| Pressure shaping per decision | 0 | 0 | bounded negative, max magnitude 0.02 |
 
-Holding beyond the limit is a turnover. Illegal repeated pairs cost 0.1 team reward when submitted directly; masked agents cannot select them. No reward is given for arbitrary movement. The replay inspection panel shows possession reward components for the current decision interval; the training environment records components for each agent. Reward design can still create exploits such as repeated safe pairs if pair restrictions are off. Test that possibility explicitly.
+Defending receives the opposite valid team reward. Invalid actions cost only the submitting actor 0.05; masks prevent such choices during PPO sampling. There is no direction, diversity or split-pass bonus. Holding limits and finite horizons prevent unlimited retention rewards. One/two-touch constraints approximate release windows of 0.85/1.5 seconds in v2; they are explicit drill rules, not modeled foot contacts.
 
-Default PPO: 96 × 96 tanh network, gamma .99, GAE lambda .95, clipped probability ratio .2, entropy coefficient .01, value loss coefficient .5, four update epochs, minibatches of 128 and gradient norm .5. Time-limit transitions bootstrap values while all episode boundaries stop GAE traces. Initial weights are saved before any update. CPU is default; CLI supports CUDA/MPS or automatic detection. A requested unsupported accelerator reports a real PyTorch error.
+The six curriculum stages cover basic passing, pressure, adaptive support, defending, adversarial populations and generalization. Manual selection is supported. Automatic promotion needs at least ten held-out episodes and team-specific football thresholds; stage 5 requires qualification by both teams before stage 6. Time elapsed is never sufficient. Stage 6 varies size/opponent strategy during training while retaining a fixed benchmark.
 
-## Evaluation and tactical layers
+## Compatibility
 
-Episode metrics include successful/attempted passes, completion rate, duration, distinct receivers, receiver distribution, hold duration, terminal reason, turnovers, interceptions and interception locations. Aggregate evaluation reports mean/median/longest sequence, seed standard deviation and an approximate 95% interval. A sequence is the whole episode, ending at its first turnover. **Pressing efficiency** is interceptions divided by simulated episode seconds; it is a proxy, not a measured tactical quality score. Evaluation runs cannot update weights.
+- Environment v1 and its 90-feature policy interpretation are retained in `rondolab/legacy`.
+- V2 actors use 110 features and versioned action semantics. Old v1 checkpoints play in explicit legacy mode; they cannot resume v2 training.
+- Stored replay schema v1 remains readable; schema v2 adds controller/region/readiness/interception information and opposing-policy metadata. Stored states need no model to play.
+- Unpublished development-draft v2 snapshots remain on disk. Those without finalized engine provenance are excluded from the normal policy/session catalog; `/api/policies?include_drafts=true` exposes their metadata. This avoids presenting drafts as final-generation evidence.
 
-Passing lanes and option labels are current segment geometry, not policy predictions. Pressure is a radial visualization of proximity, not a learned threat model. Velocity vectors, facing, swept reach, trails, spacing, pass network, heatmaps and interception maps come from actual states or event logs. Passing networks count completed connections; heatmaps use sampled recorded positions. Decorative turf stripes and shirt stride animation only aid readability.
-
-Replay schema v1 stores config, seed, episode ID, every player and ball state at 20 Hz, decision observations/masks/actions, probabilities and value estimates when available, rewards, events and checkpoint metadata. Stored-state playback is deterministic; it is distinct from re-simulating actions. Seeded simulator re-simulation is tested on one runtime, not promised bitwise identical across platforms or library versions. Imports validate schema version, timestamps, player count and finite coordinates.
-
-## Checks
+## Checks and limitations
 
 ```bash
 uv run pytest -q
@@ -137,16 +154,8 @@ uv run ruff check .
 npm run build --prefix frontend
 ```
 
-Tests cover continuous travel and deceleration, swept interception, boundary events, speed/turning/collision limits, deterministic episodes, rewards and masks, Gymnasium/PettingZoo contracts, GAE, PPO clipping, finite gradients, checkpoint round trips, real training in all modes, evaluation immutability, replay/API contracts and training cancellation. CI repeats Python checks and the TypeScript production build.
+Tests cover physics, API contracts, Gymnasium/PettingZoo validation, hidden-intention exclusion, masks, team rewards, immutable opponents, alternating updates, same-device deterministic resume, generation metadata, matched scenarios, legacy playback and cooperative API pause/resume. CI runs Python checks and the TypeScript production build.
 
-Browser QA and observed smoke-run results are recorded in `docs/VERIFICATION.md` after verification. This project follows the official [Gymnasium environment contract](https://gymnasium.farama.org/main/api/env/) and [PettingZoo environment validators](https://pettingzoo.farama.org/content/environment_tests/).
+This is a steering-based toy simulation. Team physical profiles are shared; there are no aerial balls, stamina, biomechanics or learned continuous pass strength. Players stay within assigned regions; full position exchanges are not implemented. Lane/coordination/pressure metrics are defined proxies, not tactical truth. Collision separation is approximate. No quantitative browser FPS or physical-phone touch benchmark is claimed. GPU behavior and cross-device bitwise resume are unverified.
 
-## Limitations and next work
-
-This is an educational steering simulation, not a football biomechanics model. Players have shared team physical profiles; no stamina, aerial passes, continuous pass-strength actions or rigid-body limbs. Body orientation affects turning/release and first-touch error, not every interaction. Collision separation is approximate. Touch rules are timing approximations. The local critic, simple curriculum recommendation and small opponent pool favor understandable experiments over research infrastructure.
-
-No DQN, distributed training, automatic curriculum promotion, resume-training CLI or TensorBoard adapter is advertised. Hyperparameters beyond the UI's supported fields can be changed through the Python training function. Evaluation curves are based on small fixed-seed batches per update; use larger explicit evaluations and multiple independent training seeds before drawing conclusions. The final checkpoint may fail to beat random play. Model probabilities are outputs, not explanations of internal reasoning.
-
-Useful extensions: stronger evaluations across opponent pools, configurable per-player attributes, continuous movement/strength actions, contact-count touch rules, checkpoint resume, larger reward ablations and measured cooperation diagnostics.
-
-![Actual saved-policy replay in the browser](docs/saved-policy-replay.jpg)
+The repo keeps simulation, environment contracts, PPO, population/evaluation, API workers and rendering separate. Rendering interpolates recorded states and never determines physics or learning outcomes. Architecture and future-agent requirements are in `docs/ARCHITECTURE.md` and `AGENTS.md`.

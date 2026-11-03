@@ -2,6 +2,10 @@ import { useId } from "react";
 import type { Frame, Replay, Vec } from "./types";
 export const layerNames = {
   lanes: "Passing lanes",
+  blocked: "Blocked passing lanes",
+  probabilities: "Pass selection probabilities",
+  interceptable: "Feasible interception paths",
+  support: "Support regions & targets",
   trajectory: "Ball trajectory",
   facing: "Body orientation",
   pressure: "Defensive pressure",
@@ -17,6 +21,10 @@ export const layerNames = {
 export type Layers = Record<keyof typeof layerNames, boolean>;
 export const defaultLayers: Layers = {
   lanes: true,
+  blocked: true,
+  probabilities: false,
+  interceptable: false,
+  support: false,
   trajectory: true,
   facing: true,
   pressure: false,
@@ -282,7 +290,7 @@ export function Pitch({
               key={p.id}
               cx={p.position[0]}
               cy={p.position[1]}
-              r="2.5"
+              r={Number(replay.config.pressure_radius || 2.5)}
               fill={`url(#${uid}pressure)`}
             />
           ))}
@@ -302,7 +310,109 @@ export function Pitch({
               strokeDasharray=".07 .09"
             />
           ))}
-      {(layers.lanes || layers.options) &&
+      {layers.support &&
+        frame.players
+          .slice(0, 6)
+          .filter((p) => p.region)
+          .map((p) => (
+            <g key={p.id}>
+              <rect
+                x={p.region![0][0]}
+                y={p.region![0][1]}
+                width={p.region![1][0] - p.region![0][0]}
+                height={p.region![1][1] - p.region![0][1]}
+                stroke="#c5d5a2"
+                strokeWidth=".025"
+                strokeDasharray=".12 .13"
+                fill="#b2ce94"
+                fillOpacity=".035"
+              />
+              {p.target && (
+                <line
+                  x1={p.position[0]}
+                  y1={p.position[1]}
+                  x2={p.target[0]}
+                  y2={p.target[1]}
+                  stroke="#cddfb1"
+                  strokeWidth=".045"
+                  markerEnd={`url(#${uid}arrow)`}
+                />
+              )}
+            </g>
+          ))}
+      {layers.interceptable &&
+        frame.players
+          .slice(6)
+          .filter((p) => p.intercept_path?.feasible)
+          .map((p) => (
+            <g key={p.id}>
+              <line
+                x1={p.position[0]}
+                y1={p.position[1]}
+                x2={p.intercept_path!.point[0]}
+                y2={p.intercept_path!.point[1]}
+                stroke="#f2ac8e"
+                strokeWidth=".055"
+                strokeDasharray=".09 .07"
+              />
+              <circle
+                cx={p.intercept_path!.point[0]}
+                cy={p.intercept_path!.point[1]}
+                r=".19"
+                fill="none"
+                stroke="#f2ac8e"
+                strokeWidth=".04"
+              />
+              <text
+                x={p.intercept_path!.point[0]}
+                y={p.intercept_path!.point[1] - 0.3}
+                className="distance-label"
+              >
+                {p.intercept_path!.eta.toFixed(2)}s
+              </text>
+            </g>
+          ))}
+      {layers.probabilities &&
+        (() => {
+          const id =
+            carrier !== null && carrier < 6
+              ? carrier
+              : frame.ball.previous_carrier;
+          const source = id !== null && id < 6 ? frame.players[id] : null;
+          if (!source?.probabilities)
+            return (
+              <text x="0" y={h + 1.2} className="pitch-label">
+                Neural probabilities unavailable at this decision
+              </text>
+            );
+          return frame.players
+            .slice(0, 6)
+            .filter((p) => p.id !== id)
+            .map((p) => {
+              const probability = source.probabilities![p.id + 1] || 0;
+              return (
+                <g key={p.id}>
+                  <line
+                    x1={source.position[0]}
+                    y1={source.position[1]}
+                    x2={p.position[0]}
+                    y2={p.position[1]}
+                    stroke="#e2efb9"
+                    strokeWidth={0.02 + probability * 0.14}
+                    opacity={0.15 + probability * 0.7}
+                  />
+                  <text
+                    x={(source.position[0] + p.position[0]) / 2}
+                    y={(source.position[1] + p.position[1]) / 2}
+                    className="distance-label"
+                  >
+                    {(probability * 100).toFixed(1)}%
+                  </text>
+                </g>
+              );
+            });
+        })()}
+      {(layers.lanes || layers.blocked || layers.options) &&
         carrier !== null &&
         carrier < 6 &&
         frame.players
@@ -315,7 +425,7 @@ export function Pitch({
                 .map((d) => laneDistance(d.position, ball, p.position)),
             );
             const blocked =
-              clearance < Number(replay.config.interception_radius) + 0.2;
+              clearance < Number(replay.config.interception_radius);
             return (
               <g key={p.id}>
                 <line
@@ -326,7 +436,13 @@ export function Pitch({
                   stroke={blocked ? "#f09985" : "#d3dfb3"}
                   strokeWidth=".035"
                   strokeDasharray={blocked ? ".08 .16" : ".18 .18"}
-                  opacity={blocked ? 0.65 : 0.38}
+                  opacity={
+                    (blocked ? layers.blocked : layers.lanes)
+                      ? blocked
+                        ? 0.65
+                        : 0.38
+                      : 0
+                  }
                 />
                 {layers.options && (
                   <text

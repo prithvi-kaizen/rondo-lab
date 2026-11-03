@@ -11,6 +11,14 @@ export interface Player {
   control: string;
   probabilities: number[] | null;
   value: number | null;
+  previous_action?: number;
+  target?: Vec;
+  pressure?: number;
+  ball_distance?: number;
+  receiving_remaining?: number;
+  region?: [Vec, Vec];
+  last_interception_attempt?: { time: number; point: Vec; eta: number } | null;
+  intercept_path?: { point: Vec; eta: number; feasible: boolean };
 }
 export interface Ball {
   position: Vec;
@@ -49,13 +57,19 @@ export interface Policy {
   seed: number;
   config: Config;
   note?: string;
+  generation?: number;
+  team_generation?: number;
+  environment_version?: number;
+  compatibility?: string;
+  lineage?: string;
 }
 export interface Replay {
-  schema_version: 1;
+  schema_version: 1 | 2;
   episode_id: string;
   seed: number;
   config: Config;
   policy: Partial<Policy> & { kind?: string; name?: string };
+  opponent?: Partial<Policy> | null;
   frames: Frame[];
   events: Event[];
   metrics: Record<string, number | string | number[]>;
@@ -89,6 +103,16 @@ export interface Experiment {
   id: string;
   metadata: Record<string, unknown>;
   history: Metric[];
+  population?: {
+    entries: {
+      id: string;
+      team: string;
+      kind: string;
+      generation: number;
+      strategy?: string;
+      steps?: number;
+    }[];
+  };
 }
 export interface TrainingStatus {
   id?: string;
@@ -110,8 +134,8 @@ export const labels = [
   "Pass to 4",
   "Pass to 5",
   "Pass to 6",
-  "Clockwise",
-  "Counterclockwise",
+  "Adjust left in region",
+  "Adjust right in region",
   "Support angle",
   "Avoid pressure",
   "Recover anchor",
@@ -127,6 +151,8 @@ export const defenderLabels = [
   "Block 6",
   "Recover",
   "Pursue ball",
+  "Hold shape",
+  "Close receiver",
 ];
 export async function api<T>(
   path: string,

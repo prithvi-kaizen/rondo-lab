@@ -11,11 +11,14 @@ import {
   type TrainingStatus,
 } from "./types";
 import "./style.css";
+import AdversarialLab from "./AdversarialLab";
+import DecisionInspector from "./DecisionInspector";
 
 type Page =
   | "Playground"
   | "Watch AI Learn"
   | "Training"
+  | "Adversarial Lab"
   | "Experiments"
   | "RL Explorer"
   | "Settings";
@@ -23,6 +26,7 @@ const pages: Page[] = [
   "Playground",
   "Watch AI Learn",
   "Training",
+  "Adversarial Lab",
   "Experiments",
   "RL Explorer",
   "Settings",
@@ -53,11 +57,14 @@ export default function App() {
     [compareId, setCompareId] = useState(""),
     [seed, setSeed] = useState(42),
     [episode, setEpisode] = useState(0),
-    [preset, setPreset] = useState("Classic 6v2");
+    [preset, setPreset] = useState("Standard · 12m grid");
+  const [opponentCheckpoint, setOpponentCheckpoint] = useState("");
+  const opponentRef = useRef("");
   const [time, setTime] = useState(0),
     [playing, setPlaying] = useState(true),
     [speed, setSpeed] = useState(1),
     [loop, setLoop] = useState(false),
+    [autoAdvance, setAutoAdvance] = useState(true),
     [selected, setSelected] = useState<number | null>(null),
     [layers, setLayers] = useState<Layers>(defaultLayers);
   const [error, setError] = useState(""),
@@ -80,6 +87,7 @@ export default function App() {
     clock = useRef({ last: 0 }),
     timeRef = useRef(0);
   const loadSequence = useRef(0);
+  const endedNaturally = useRef(false);
   const refresh = useCallback(async () => {
     const [p, e] = await Promise.all([
       api<Policy[]>("/policies"),
@@ -89,8 +97,15 @@ export default function App() {
     setExperiments(e);
   }, []);
   const load = useCallback(
-    async (c: Config, s: number, id = "", compare = "") => {
+    async (
+      c: Config,
+      s: number,
+      id = "",
+      compare = "",
+      opponent = opponentRef.current,
+    ) => {
       const request = ++loadSequence.current;
+      endedNaturally.current = false;
       setLoading(true);
       setError("");
       setPlaying(false);
@@ -100,12 +115,14 @@ export default function App() {
             config: c,
             seed: s,
             checkpoint: id || null,
+            opponent_checkpoint: opponent || null,
           }),
           compare
             ? api<Replay>("/episodes", {
                 config: c,
                 seed: s,
                 checkpoint: compare,
+                opponent_checkpoint: opponent || null,
               })
             : Promise.resolve(null),
         ]);
@@ -158,7 +175,10 @@ export default function App() {
         timeRef.current = Math.min(end, timeRef.current + delta);
         if (timeRef.current >= end) {
           if (loop) timeRef.current = 0;
-          else setPlaying(false);
+          else {
+            endedNaturally.current = true;
+            setPlaying(false);
+          }
         }
         setTime(timeRef.current);
       }
@@ -168,6 +188,33 @@ export default function App() {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing, speed, replay, comparison, loop, loading]);
+  useEffect(() => {
+    if (
+      autoAdvance &&
+      endedNaturally.current &&
+      !playing &&
+      !loading &&
+      page === "Playground" &&
+      !checkpoint &&
+      !opponentCheckpoint &&
+      replay?.policy.kind === "scripted"
+    ) {
+      endedNaturally.current = false;
+      setSeed((s) => s + 1);
+      void load(config, seed + 1);
+    }
+  }, [
+    autoAdvance,
+    playing,
+    loading,
+    page,
+    checkpoint,
+    opponentCheckpoint,
+    replay,
+    config,
+    seed,
+    load,
+  ]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
@@ -213,17 +260,30 @@ export default function App() {
     comparison?.frames.at(-1)!.time || 0,
   );
   const scrub = (t: number) => {
+    endedNaturally.current = false;
     setPlaying(false);
     timeRef.current = Math.max(0, Math.min(t, end));
     setTime(timeRef.current);
   };
   const restart = () => {
+    endedNaturally.current = false;
     timeRef.current = 0;
     setTime(0);
     setPlaying(true);
     clock.current.last = 0;
   };
   const changePolicy = (id: string) => {
+    const choice = policies.find((p) => p.id === id);
+    const other = policies.find((p) => p.id === opponentRef.current);
+    if (
+      choice &&
+      other &&
+      (choice.team === other.team ||
+        choice.environment_version !== other.environment_version)
+    ) {
+      opponentRef.current = "";
+      setOpponentCheckpoint("");
+    }
     setCheckpoint(id);
     void load(config, seed, id, compareId);
   };
@@ -233,7 +293,9 @@ export default function App() {
     if (p === "Watch AI Learn") {
       setComparison(null);
       setCompareId("");
-    } else if (p === "Playground" && checkpoint) {
+    } else if (p === "Playground" && (checkpoint || opponentCheckpoint)) {
+      opponentRef.current = "";
+      setOpponentCheckpoint("");
       setCheckpoint("");
       setCompareId("");
       void load(config, seed);
@@ -246,6 +308,14 @@ export default function App() {
   const isPolicyReplay = Boolean(
     replay?.policy.team && replay.policy.team !== "none",
   );
+  const playerActionNames =
+    player && player.id < 6
+      ? replay?.config.environment_version === 1
+        ? labels.map((s, i) =>
+            i === 7 ? "Clockwise" : i === 8 ? "Counterclockwise" : s,
+          )
+        : labels
+      : defenderLabels;
   const visibleEvents = replay?.events.filter((e) => e.time <= time) || [];
   const latest = visibleEvents.at(-1);
   const exportReplay = () => {
@@ -270,6 +340,8 @@ export default function App() {
       setReplay(r);
       setComparison(null);
       setCheckpoint("");
+      opponentRef.current = "";
+      setOpponentCheckpoint("");
       setTime(0);
       timeRef.current = 0;
       setPlaying(false);
@@ -308,7 +380,7 @@ export default function App() {
     setSideTab("Player");
   };
   const policyLabel = (p: Policy) =>
-    `${p.stage === "untrained" ? "Untrained" : p.stage === "intermediate" ? "Intermediate" : "Trained checkpoint"} · ${p.steps.toLocaleString()} steps · ${p.team}`;
+    `${p.environment_version === 1 ? "Legacy v1" : `G${p.generation ?? 0}`} · ${p.stage === "untrained" ? "Untrained" : p.stage === "intermediate" ? "Intermediate" : "Trained checkpoint"} · ${p.steps.toLocaleString()} steps · ${p.team}`;
   const renderStage = () => (
     <>
       <div className="session-bar">
@@ -321,6 +393,9 @@ export default function App() {
             {isPolicyReplay
               ? `${Number(replay?.policy.steps || 0).toLocaleString()} environment steps`
               : "Cover & press baseline"}
+            {replay?.config.environment_version === 1
+              ? " · Legacy v1"
+              : " · Rectangular grid v2"}
           </span>
         </div>
         <div className="session-meta">
@@ -363,6 +438,34 @@ export default function App() {
             </select>
           </label>
           <label>
+            Opposing policy
+            <select
+              value={opponentCheckpoint}
+              onChange={(e) => {
+                opponentRef.current = e.target.value;
+                setOpponentCheckpoint(e.target.value);
+                void load(config, seed, checkpoint, compareId, e.target.value);
+              }}
+            >
+              <option value="">Scripted opponent</option>
+              {policies
+                .filter(
+                  (p) =>
+                    p.team !==
+                      (policies.find((q) => q.id === checkpoint)?.team ||
+                        "possession") &&
+                    p.environment_version ===
+                      (policies.find((q) => q.id === checkpoint)
+                        ?.environment_version || 2),
+                )
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {policyLabel(p)} · {p.id.split("/")[0]}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <label>
             Compare alongside
             <select
               value={compareId}
@@ -372,11 +475,21 @@ export default function App() {
               }}
             >
               <option value="">Single replay</option>
-              {policies.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {policyLabel(p)} · {p.id.split("/")[0]}
-                </option>
-              ))}
+              {policies
+                .filter(
+                  (p) =>
+                    p.team ===
+                      (policies.find((q) => q.id === checkpoint)?.team ||
+                        "possession") &&
+                    p.environment_version ===
+                      (policies.find((q) => q.id === checkpoint)
+                        ?.environment_version || 2),
+                )
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {policyLabel(p)} · {p.id.split("/")[0]}
+                  </option>
+                ))}
             </select>
           </label>
           <p className="provenance">
@@ -537,10 +650,26 @@ export default function App() {
                 <input
                   type="checkbox"
                   checked={loop}
-                  onChange={(e) => setLoop(e.target.checked)}
+                  onChange={(e) => {
+                    setLoop(e.target.checked);
+                    if (e.target.checked) setAutoAdvance(false);
+                  }}
                 />
                 Loop episode
               </label>
+              {page === "Playground" && !isPolicyReplay && (
+                <label className="check compact-check">
+                  <input
+                    type="checkbox"
+                    checked={autoAdvance}
+                    onChange={(e) => {
+                      setAutoAdvance(e.target.checked);
+                      if (e.target.checked) setLoop(false);
+                    }}
+                  />
+                  Continuous session
+                </label>
+              )}
               <label className="episode-select">
                 Episode
                 <select
@@ -695,18 +824,19 @@ export default function App() {
                       <dt>Intention</dt>
                       <dd>{player.intention}</dd>
                       <dt>Selected action</dt>
-                      <dd>
-                        {
-                          (player.id < 6 ? labels : defenderLabels)[
-                            player.action
-                          ]
-                        }
-                      </dd>
+                      <dd>{playerActionNames[player.action]}</dd>
                       <dt>Value estimate</dt>
                       <dd>
                         {player.value?.toFixed(3) ?? "Scripted: unavailable"}
                       </dd>
                     </dl>
+                    {replay && frame && (
+                      <DecisionInspector
+                        replay={replay}
+                        frame={frame}
+                        player={player}
+                      />
+                    )}
                     {player.probabilities ? (
                       <>
                         <h3>Action probabilities</h3>
@@ -718,9 +848,7 @@ export default function App() {
                           (prob, i) =>
                             prob > 0 && (
                               <div className="probability" key={i}>
-                                <span>
-                                  {(player.id < 6 ? labels : defenderLabels)[i]}
-                                </span>
+                                <span>{playerActionNames[i]}</span>
                                 <b>{(prob * 100).toFixed(1)}%</b>
                                 <div style={{ width: `${prob * 100}%` }} />
                               </div>
@@ -866,6 +994,7 @@ export default function App() {
                       "learn",
                       "training",
                       "experiments",
+                      "experiments",
                       "book",
                       "settings",
                     ][i]
@@ -895,7 +1024,7 @@ export default function App() {
               <i />
               Local workspace
             </span>
-            <small>Rondo Lab / v0.1</small>
+            <small>Rondo Lab / v2.0</small>
           </div>
         </nav>
         <main id="main">
@@ -924,7 +1053,7 @@ export default function App() {
                     ? "The training ground"
                     : page === "Watch AI Learn"
                       ? "Policy replay"
-                      : page === "Training"
+                      : page === "Training" || page === "Adversarial Lab"
                         ? "Learning by playing"
                         : page === "Experiments"
                           ? "Evidence from the pitch"
@@ -932,13 +1061,17 @@ export default function App() {
                             ? "Inside the learning loop"
                             : "Your football environment"}
                 </div>
-                <h1>{page}</h1>
+                <h1>
+                  {page === "Adversarial Lab"
+                    ? "Adversarial Training Lab"
+                    : page}
+                </h1>
                 <p>
                   {page === "Playground"
                     ? "Keep the ball. Find the angle. Read the press."
                     : page === "Watch AI Learn"
                       ? "Watch how decisions change across genuine training checkpoints."
-                      : page === "Training"
+                      : page === "Training" || page === "Adversarial Lab"
                         ? "Train shared policies and evaluate what actually changes."
                         : page === "Experiments"
                           ? "Compare saved runs on fixed evaluation scenarios."
@@ -986,6 +1119,24 @@ export default function App() {
               </div>
             )}
             {["Playground", "Watch AI Learn"].includes(page) && renderStage()}
+            {page === "Adversarial Lab" && (
+              <AdversarialLab
+                policies={policies}
+                experiments={experiments}
+                config={config}
+                onChanged={refresh}
+                onWatch={(p, d, s) => {
+                  opponentRef.current = d;
+                  setOpponentCheckpoint(d);
+                  setCheckpoint(p);
+                  setCompareId("");
+                  setSeed(s);
+                  setConfig((c) => ({ ...c, environment_version: 2 }));
+                  setPage("Watch AI Learn");
+                  void load({ ...config, environment_version: 2 }, s, p, "", d);
+                }}
+              />
+            )}
             {page === "Training" && (
               <div className="training-layout">
                 <section className="form-panel">
@@ -995,7 +1146,10 @@ export default function App() {
                     Learning mode
                     <select
                       value={trainMode}
-                      onChange={(e) => setTrainMode(e.target.value)}
+                      onChange={(e) => {
+                        setTrainMode(e.target.value);
+                        if (e.target.value === "both") setScenario("adaptive");
+                      }}
                     >
                       <option value="possession">
                         A · Possession learning
@@ -1320,7 +1474,7 @@ export default function App() {
                   {[
                     [
                       "State & observation",
-                      "The world stores all eight players, ball motion and rules. Each actor receives 90 normalized, player-relative features: positions, velocities, body orientation, possession and boundaries. No future action is included.",
+                      "The v2 world exposes 110 normalized player-relative features, including physical readiness, pressure, region bounds and lane reach estimates. Legacy v1 policies retain their original 90 features. Future opponent decisions are excluded.",
                     ],
                     [
                       "Action & policy",
@@ -1328,7 +1482,7 @@ export default function App() {
                     ],
                     [
                       "Reward & shaping",
-                      "Sparse: +1 per completed pass, loss penalty on a turnover. Moderate adds +0.02 per second of possession. Heavy uses +1.5 per pass and a small pressure penalty. Defenders receive the opposite team reward. Invalid actions cost their actor 0.05.",
+                      "V2 sparse reward penalizes turnovers. Moderate adds +0.10 per second of possession and +0.08 per completed pass; the default turnover penalty is 4. Heavy uses +0.40 per pass and a bounded pressure penalty. Defenders receive the opposite team reward. Directions and split passes receive no special bonus. Legacy rewards retain their original interpretation.",
                     ],
                     [
                       "Value function & discount",
@@ -1344,7 +1498,7 @@ export default function App() {
                     ],
                     [
                       "Curriculum",
-                      "Difficulty can be selected manually in Settings. The Python curriculum module recommends promotion only after at least ten evaluation episodes exceed a passing threshold. Promotion is not triggered by elapsed training steps.",
+                      "Choose a football stage manually, or enable performance-based promotion in the Adversarial Lab. Promotion requires at least ten held-out scenarios and team-specific football thresholds. Elapsed training steps do not trigger promotion.",
                     ],
                   ].map(([title, text], i) => (
                     <details key={title} open={i === 0}>
@@ -1445,6 +1599,23 @@ export default function App() {
                     ["Acceleration", "acceleration", 1, 15, 0.5, "m/s²"],
                     ["Turning rate", "turning_rate", 0.5, 12, 0.5, "rad/s"],
                     ["Ball speed", "ball_speed", 4, 18, 0.5, "m/s"],
+                    [
+                      "Pass strength",
+                      "pass_strength",
+                      0.65,
+                      1.3,
+                      0.05,
+                      "multiplier",
+                    ],
+                    [
+                      "Receiving preparation",
+                      "receiving_time",
+                      0.05,
+                      0.8,
+                      0.01,
+                      "s",
+                    ],
+                    ["Pass preparation", "pass_preparation", 0, 0.5, 0.01, "s"],
                     ["Rolling resistance", "resistance", 0, 2, 0.05, "m/s²"],
                     ["Pass error", "pass_error", 0, 0.3, 0.005, "rad"],
                     ["Control radius", "control_radius", 0.3, 1, 0.05, "m"],
@@ -1518,18 +1689,22 @@ export default function App() {
                       value={config.curriculum || 4}
                       onChange={(e) => {
                         const level = Number(e.target.value),
-                          speeds = [0, 0, 1, 1.8, 2.3, 2.8, 3.2],
+                          speeds = [0, 1, 2.3, 2.3, 2.3, 2.3, 2.3],
                           strategies = [
                             "",
                             "chase",
-                            "chase",
-                            "nearest",
-                            "lanes",
+                            "cover_press",
+                            "cover_press",
+                            "cover_press",
                             "cover_press",
                             "cover_press",
                           ];
                         setConfig((c) => ({
                           ...c,
+                          environment_version: 2,
+                          width: level === 1 ? 15 : 12,
+                          height: level === 1 ? 15 : 12,
+                          max_touches: level >= 3 ? 2 : 0,
                           curriculum: level,
                           defender_speed: speeds[level],
                           defender_strategy: strategies[level],
@@ -1537,12 +1712,12 @@ export default function App() {
                       }}
                     >
                       {[
-                        "Stationary",
-                        "Slow chase",
-                        "Simple press",
-                        "Passing lanes",
-                        "Cover & press",
-                        "Competitive opponents",
+                        "Basic passing",
+                        "Under pressure",
+                        "Adaptive possession",
+                        "Learn defending",
+                        "Adversarial populations",
+                        "Generalization",
                       ].map((s, i) => (
                         <option key={s} value={i + 1}>
                           {i + 1} · {s}
@@ -1551,9 +1726,9 @@ export default function App() {
                     </select>
                   </label>
                   <p>
-                    Level 6 changes physical difficulty here. Select alternating
-                    competitive mode in Training to use frozen learned
-                    opponents.
+                    Curriculum generalization varies training scenarios in the
+                    Adversarial Lab. This control selects a manual drill stage;
+                    it does not start training.
                   </p>
                   <button
                     className="primary"
@@ -1567,7 +1742,7 @@ export default function App() {
                   <button
                     onClick={() => {
                       setConfig(defaults);
-                      setPreset("Classic 6v2");
+                      setPreset("Standard · 12m grid");
                     }}
                   >
                     Reset to defaults

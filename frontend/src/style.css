@@ -1784,3 +1784,354 @@ select {
     r: 1.6px;
   }
 }
+.adversarial-lab {
+  min-width: 0;
+}
+.lab-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+  padding-bottom: 10px;
+}
+.lab-tabs button {
+  background: transparent;
+  border-color: transparent;
+  color: #bdcab2;
+}
+.lab-tabs button[aria-selected="true"] {
+  background: #2b392a;
+  color: #d9eabd;
+  border-color: #71855e;
+}
+.population-board {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 26px;
+  padding: 28px;
+  background: #1c2920;
+  border: 1px solid #42553d;
+  margin-bottom: 24px;
+  border-radius: 6px;
+}
+.population-board > div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.population-board strong {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: #e5edcf;
+}
+.population-board > div:last-child strong {
+  color: #edab92;
+}
+.population-board > div > span:not(.section-label) {
+  font-size: 0.85rem;
+  color: #bac8ad;
+}
+.population-board b {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #d4e7b5;
+}
+.population-connection {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.population-connection svg {
+  width: 100%;
+  max-width: 240px;
+  height: 60px;
+  color: #b1c58e;
+}
+.population-connection small {
+  font-size: 0.75rem;
+  color: #b4c4a5;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.lab-training {
+  display: grid;
+  grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
+  gap: 24px;
+}
+.lab-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+  margin-top: 22px;
+}
+.lab-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 0.78rem;
+  color: #c4d1b7;
+  min-width: 0;
+}
+.lab-form-grid input {
+  width: 100%;
+}
+.lab-inline {
+  flex-direction: row !important;
+  align-items: center;
+  line-height: 1.6;
+}
+.lab-inline input {
+  flex: none;
+}
+.wrap-id {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.pool-list {
+  max-height: 320px;
+  overflow: auto;
+  border-top: 1px solid var(--line);
+}
+.pool-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 5px 10px;
+}
+.pool-row span {
+  font-size: 0.72rem;
+  color: #bcc9ab;
+}
+.pool-row strong {
+  font-size: 0.77rem;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.pool-row small {
+  font-size: 0.68rem;
+  color: #b0bf9f;
+  grid-column: 2;
+}
+.lab-history,
+.matchup-panel {
+  padding: 25px;
+  background: #1b261e;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin-top: 24px;
+  min-width: 0;
+}
+.lab-history > .section-head {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.lab-history label,
+.experiment-controls > label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.79rem;
+  color: #c6d4b9;
+  min-width: 0;
+}
+.lab-history label {
+  max-width: 380px;
+}
+.team-chart {
+  margin: 30px 0 18px;
+}
+.team-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.team-chart text {
+  fill: #b6c4aa;
+  font-size: 11px;
+}
+.chart-keys {
+  display: flex;
+  gap: 24px;
+  font-size: 0.75rem;
+  color: #d8e9b0;
+}
+.chart-keys span:last-child {
+  color: #e9947c;
+}
+.policy-pickers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 25px 0;
+}
+.policy-pickers fieldset {
+  min-width: 0;
+  border: 1px solid #64765a;
+  padding: 18px 15px;
+  max-height: 330px;
+  overflow: auto;
+}
+.policy-pickers legend {
+  font-size: 0.9rem;
+  padding: 0 5px;
+}
+.policy-pickers legend small {
+  font-size: 0.7rem;
+  color: #b7c8a6;
+}
+.policy-pickers label {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  align-items: flex-start;
+  padding: 9px 0;
+}
+.policy-pickers input {
+  flex: none;
+  margin-top: 3px;
+}
+.policy-pickers span {
+  overflow-wrap: anywhere;
+}
+.policy-pickers small {
+  display: block;
+  font-size: 0.69rem;
+  color: #aebf9f;
+}
+.experiment-controls {
+  margin: 25px 0;
+  padding: 22px;
+  background: #233023;
+}
+.experiment-controls > label {
+  margin-bottom: 16px;
+}
+.experiment-controls p {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+}
+.direction-distribution {
+  padding: 12px 0 22px;
+}
+.direction-distribution > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  height: 100px;
+  max-width: 450px;
+  border-bottom: 1px solid #677957;
+}
+.direction-distribution > div > span {
+  position: relative;
+  background: #8da66d;
+  flex: 1;
+  min-height: 8px;
+}
+.direction-distribution span small {
+  position: absolute;
+  top: -16px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #d4e3bd;
+  font-size: 0.69rem;
+}
+.direction-distribution > small {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: #afbf9d;
+  margin-top: 10px;
+}
+.decision-inspector {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 2px;
+}
+.decision-inspector .data-row {
+  font-size: 0.74rem;
+}
+.decision-inspector b {
+  max-width: 55%;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.adversarial-lab .comparison-selectors {
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 22px;
+}
+@media (max-width: 1150px) {
+  .lab-training {
+    grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  }
+  .population-board {
+    gap: 18px;
+    padding: 24px 20px;
+  }
+  .population-board strong {
+    font-size: 2rem;
+  }
+  .lab-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .population-connection small {
+    font-size: 0.7rem;
+  }
+}
+@media (max-width: 760px) {
+  .lab-training {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .policy-pickers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .population-board {
+    gap: 15px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .population-connection {
+    grid-column: 1/-1;
+    grid-row: 2;
+  }
+  .population-board > div:last-child {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .population-connection svg {
+    height: 40px;
+  }
+  .population-board strong {
+    font-size: 2rem;
+  }
+  .adversarial-lab .comparison-selectors {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab-history,
+  .matchup-panel {
+    padding: 21px 16px;
+  }
+  .lab-tabs button {
+    min-height: 44px;
+  }
+  .lab-history > .section-head > label {
+    width: 100%;
+    max-width: 100%;
+  }
+  .population-board {
+    padding: 22px 17px;
+  }
+  .population-board .section-label {
+    font-size: 0.7rem;
+  }
+  .population-board b {
+    font-size: 0.72rem;
+  }
+  .lab-form-grid input,
+  .adversarial-lab select,
+  .adversarial-lab button {
+    min-height: 44px;
+  }
+}
