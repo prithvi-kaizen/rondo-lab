@@ -1,0 +1,1422 @@
+{
+  "untrained": {
+    "episodes": 10,
+    "seeds": [
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010
+    ],
+    "mean_passes": 2.0,
+    "median_passes": 2.0,
+    "longest_sequence": 5,
+    "passes_std": 1.1547005383792515,
+    "passes_ci95_normal": 0.715690808473417,
+    "mean_duration": 4.63,
+    "pass_completion": 0.6896551724137931,
+    "turnovers": 10,
+    "interceptions": 8,
+    "out_of_bounds": 0,
+    "episodes_detail": [
+      {
+        "passes": 2,
+        "attempts": 3,
+        "completion": 0.6666666666666666,
+        "duration": 4.45,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 1.0499999999999998,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            10.321623483423098,
+            13.17167215730081
+          ]
+        ],
+        "time_to_interception": 4.4,
+        "pressing_efficiency": 0.2247191011235955
+      },
+      {
+        "passes": 2,
+        "attempts": 3,
+        "completion": 0.6666666666666666,
+        "duration": 4.45,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 1.0499999999999998,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            10.365529312578545,
+            13.121107894262936
+          ]
+        ],
+        "time_to_interception": 4.4,
+        "pressing_efficiency": 0.2247191011235955
+      },
+      {
+        "passes": 5,
+        "attempts": 6,
+        "completion": 0.8333333333333334,
+        "duration": 7.6,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 5,
+        "receivers": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          2
+        ],
+        "mean_hold": 0.3833333333333333,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            10.675150920614511,
+            8.947389718539656
+          ]
+        ],
+        "time_to_interception": 7.55,
+        "pressing_efficiency": 0.13157894736842105
+      },
+      {
+        "passes": 1,
+        "attempts": 3,
+        "completion": 0.3333333333333333,
+        "duration": 4.45,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "mean_hold": 1.0333333333333332,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            10.250806916035993,
+            13.128639232871935
+          ]
+        ],
+        "time_to_interception": 4.4,
+        "pressing_efficiency": 0.2247191011235955
+      },
+      {
+        "passes": 2,
+        "attempts": 2,
+        "completion": 1.0,
+        "duration": 5.1,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "holding_limit",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 0.4,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 2,
+        "attempts": 2,
+        "completion": 1.0,
+        "duration": 5.1,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "holding_limit",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 0.4,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 2,
+        "attempts": 3,
+        "completion": 0.6666666666666666,
+        "duration": 4.45,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 1.0499999999999998,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            10.299785503501518,
+            13.154729921425064
+          ]
+        ],
+        "time_to_interception": 4.4,
+        "pressing_efficiency": 0.2247191011235955
+      },
+      {
+        "passes": 2,
+        "attempts": 3,
+        "completion": 0.6666666666666666,
+        "duration": 3.4,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "mean_hold": 0.3666666666666667,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            8.908106403409064,
+            10.287300108551653
+          ]
+        ],
+        "time_to_interception": 3.35,
+        "pressing_efficiency": 0.29411764705882354
+      },
+      {
+        "passes": 1,
+        "attempts": 2,
+        "completion": 0.5,
+        "duration": 3.65,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "mean_hold": 1.4999999999999991,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            3.9857779570370213,
+            12.85015280436777
+          ]
+        ],
+        "time_to_interception": 3.6,
+        "pressing_efficiency": 0.273972602739726
+      },
+      {
+        "passes": 1,
+        "attempts": 2,
+        "completion": 0.5,
+        "duration": 3.65,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "mean_hold": 1.4749999999999992,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            4.068889834522719,
+            12.74721473562241
+          ]
+        ],
+        "time_to_interception": 3.6,
+        "pressing_efficiency": 0.273972602739726
+      }
+    ],
+    "note": "CI is a normal approximation across scenario seeds, not independent training runs. Pressing efficiency = interceptions per simulated second."
+  },
+  "final": {
+    "episodes": 10,
+    "seeds": [
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010
+    ],
+    "mean_passes": 3.1,
+    "median_passes": 3.0,
+    "longest_sequence": 4,
+    "passes_std": 0.5676462121975467,
+    "passes_ci95_normal": 0.35183076739945424,
+    "mean_duration": 3.875,
+    "pass_completion": 0.7380952380952381,
+    "turnovers": 10,
+    "interceptions": 10,
+    "out_of_bounds": 0,
+    "episodes_detail": [
+      {
+        "passes": 4,
+        "attempts": 5,
+        "completion": 0.8,
+        "duration": 4.75,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          2
+        ],
+        "mean_hold": 0.35,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            7.930509008433598,
+            12.942017885829559
+          ]
+        ],
+        "time_to_interception": 4.7,
+        "pressing_efficiency": 0.21052631578947367
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.65,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.375,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            6.357897847056657,
+            13.15344947702479
+          ]
+        ],
+        "time_to_interception": 3.6,
+        "pressing_efficiency": 0.273972602739726
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.75,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.375,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            7.340792778675366,
+            12.891283548568754
+          ]
+        ],
+        "time_to_interception": 3.7,
+        "pressing_efficiency": 0.26666666666666666
+      },
+      {
+        "passes": 2,
+        "attempts": 4,
+        "completion": 0.5,
+        "duration": 3.65,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "mean_hold": 0.35,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            6.2491010413423185,
+            13.261563229191536
+          ]
+        ],
+        "time_to_interception": 3.6,
+        "pressing_efficiency": 0.273972602739726
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.65,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.3625,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            6.3057640131525154,
+            13.067217871183479
+          ]
+        ],
+        "time_to_interception": 3.6,
+        "pressing_efficiency": 0.273972602739726
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.8,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.4125,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            5.907160898883348,
+            12.987048260895417
+          ]
+        ],
+        "time_to_interception": 3.75,
+        "pressing_efficiency": 0.2631578947368421
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.65,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.3625,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            5.9543272198420585,
+            13.167016626661153
+          ]
+        ],
+        "time_to_interception": 3.6,
+        "pressing_efficiency": 0.273972602739726
+      },
+      {
+        "passes": 4,
+        "attempts": 5,
+        "completion": 0.8,
+        "duration": 4.35,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          2
+        ],
+        "mean_hold": 0.29,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            7.661601414502393,
+            12.833905750091581
+          ]
+        ],
+        "time_to_interception": 4.3,
+        "pressing_efficiency": 0.2298850574712644
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.75,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.3625,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            7.145671992823467,
+            13.00446660491931
+          ]
+        ],
+        "time_to_interception": 3.7,
+        "pressing_efficiency": 0.26666666666666666
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 3.75,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "mean_hold": 0.35,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            7.265033073078508,
+            13.051653561472966
+          ]
+        ],
+        "time_to_interception": 3.7,
+        "pressing_efficiency": 0.26666666666666666
+      }
+    ],
+    "note": "CI is a normal approximation across scenario seeds, not independent training runs. Pressing efficiency = interceptions per simulated second."
+  },
+  "random": {
+    "episodes": 10,
+    "seeds": [
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010
+    ],
+    "mean_passes": 1.5,
+    "median_passes": 1.0,
+    "longest_sequence": 5,
+    "passes_std": 1.6499158227686108,
+    "passes_ci95_normal": 1.0226284217099038,
+    "mean_duration": 3.665,
+    "pass_completion": 0.5769230769230769,
+    "turnovers": 10,
+    "interceptions": 8,
+    "out_of_bounds": 2,
+    "episodes_detail": [
+      {
+        "passes": 5,
+        "attempts": 6,
+        "completion": 0.8333333333333334,
+        "duration": 9.5,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 5,
+        "receivers": [
+          1,
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 0.8083333333333336,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            2.2597300688374826,
+            7.609812266273724
+          ]
+        ],
+        "time_to_interception": 9.45,
+        "pressing_efficiency": 0.10526315789473684
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 2.25,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.8000000000000002,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.85,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 1.800000000000001,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            2.130248884832985,
+            7.313117680504757
+          ]
+        ],
+        "time_to_interception": 1.8,
+        "pressing_efficiency": 0.5405405405405405
+      },
+      {
+        "passes": 1,
+        "attempts": 2,
+        "completion": 0.5,
+        "duration": 3.05,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "mean_hold": 0.475,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 1,
+        "attempts": 2,
+        "completion": 0.5,
+        "duration": 3.05,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 1.2250000000000005,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            4.376842597708454,
+            2.6277442533953135
+          ]
+        ],
+        "time_to_interception": 3.0,
+        "pressing_efficiency": 0.3278688524590164
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 5.6,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 4,
+        "receivers": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "mean_hold": 0.6875000000000001,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            8.225909666642961,
+            8.296438754075664
+          ]
+        ],
+        "time_to_interception": 5.55,
+        "pressing_efficiency": 0.17857142857142858
+      },
+      {
+        "passes": 1,
+        "attempts": 3,
+        "completion": 0.3333333333333333,
+        "duration": 3.5,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "mean_hold": 0.5,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            6.67820407379679,
+            11.736583541946736
+          ]
+        ],
+        "time_to_interception": 3.45,
+        "pressing_efficiency": 0.2857142857142857
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 0.75,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.39999999999999997,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            4.999734634523605,
+            7.410263836242035
+          ]
+        ],
+        "time_to_interception": 0.7,
+        "pressing_efficiency": 1.3333333333333333
+      },
+      {
+        "passes": 1,
+        "attempts": 2,
+        "completion": 0.5,
+        "duration": 2.35,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 2,
+        "receivers": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.8,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            4.7802996058793354,
+            3.3540906516284807
+          ]
+        ],
+        "time_to_interception": 2.3,
+        "pressing_efficiency": 0.425531914893617
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 4.75,
+        "turnovers": 1,
+        "out_of_bounds": 0,
+        "reason": "interception",
+        "distinct_players": 3,
+        "receivers": [
+          0,
+          0,
+          0,
+          1,
+          2,
+          0
+        ],
+        "mean_hold": 0.5625,
+        "interceptions": 1,
+        "interception_locations": [
+          [
+            10.258624437098893,
+            11.970714739628042
+          ]
+        ],
+        "time_to_interception": 4.7,
+        "pressing_efficiency": 0.21052631578947367
+      }
+    ],
+    "note": "CI is a normal approximation across scenario seeds, not independent training runs. Pressing efficiency = interceptions per simulated second."
+  },
+  "simple": {
+    "episodes": 10,
+    "seeds": [
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010
+    ],
+    "mean_passes": 7.2,
+    "median_passes": 4.0,
+    "longest_sequence": 22,
+    "passes_std": 8.727988186161676,
+    "passes_ci95_normal": 5.409663123625269,
+    "mean_duration": 13.945000000000002,
+    "pass_completion": 0.8470588235294118,
+    "turnovers": 9,
+    "interceptions": 0,
+    "out_of_bounds": 9,
+    "episodes_detail": [
+      {
+        "passes": 7,
+        "attempts": 8,
+        "completion": 0.875,
+        "duration": 12.8,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 5,
+        "receivers": [
+          0,
+          1,
+          2,
+          0,
+          2,
+          2
+        ],
+        "mean_hold": 0.59375,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 3,
+        "attempts": 4,
+        "completion": 0.75,
+        "duration": 6.8,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 4,
+        "receivers": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 0.625,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.9,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.6,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.85,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.6,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 22,
+        "attempts": 26,
+        "completion": 0.8461538461538461,
+        "duration": 40.0,
+        "turnovers": 0,
+        "out_of_bounds": 0,
+        "reason": "time_limit",
+        "distinct_players": 5,
+        "receivers": [
+          0,
+          4,
+          7,
+          0,
+          5,
+          6
+        ],
+        "mean_hold": 0.5865384615384616,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 21,
+        "attempts": 22,
+        "completion": 0.9545454545454546,
+        "duration": 38.45,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 6,
+        "receivers": [
+          5,
+          1,
+          6,
+          1,
+          7,
+          1
+        ],
+        "mean_hold": 0.6181818181818182,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 14,
+        "attempts": 15,
+        "completion": 0.9333333333333333,
+        "duration": 24.15,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 6,
+        "receivers": [
+          0,
+          3,
+          3,
+          1,
+          3,
+          4
+        ],
+        "mean_hold": 0.61,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 5,
+        "attempts": 6,
+        "completion": 0.8333333333333334,
+        "duration": 9.8,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 5,
+        "receivers": [
+          0,
+          1,
+          2,
+          0,
+          1,
+          1
+        ],
+        "mean_hold": 0.6083333333333333,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.9,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.6,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.8,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.6,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      }
+    ],
+    "note": "CI is a normal approximation across scenario seeds, not independent training runs. Pressing efficiency = interceptions per simulated second."
+  },
+  "heuristic": {
+    "episodes": 10,
+    "seeds": [
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010
+    ],
+    "mean_passes": 14.7,
+    "median_passes": 13.0,
+    "longest_sequence": 32,
+    "passes_std": 12.979042936809924,
+    "passes_ci95_normal": 8.044494155770282,
+    "mean_duration": 19.975,
+    "pass_completion": 0.901840490797546,
+    "turnovers": 7,
+    "interceptions": 0,
+    "out_of_bounds": 7,
+    "episodes_detail": [
+      {
+        "passes": 7,
+        "attempts": 8,
+        "completion": 0.875,
+        "duration": 10.1,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 6,
+        "receivers": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "mean_hold": 0.5562499999999999,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 31,
+        "attempts": 33,
+        "completion": 0.9393939393939394,
+        "duration": 40.0,
+        "turnovers": 0,
+        "out_of_bounds": 0,
+        "reason": "time_limit",
+        "distinct_players": 6,
+        "receivers": [
+          5,
+          5,
+          5,
+          5,
+          6,
+          5
+        ],
+        "mean_hold": 0.562121212121212,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 29,
+        "attempts": 33,
+        "completion": 0.8787878787878788,
+        "duration": 40.0,
+        "turnovers": 0,
+        "out_of_bounds": 0,
+        "reason": "time_limit",
+        "distinct_players": 6,
+        "receivers": [
+          4,
+          5,
+          5,
+          5,
+          6,
+          4
+        ],
+        "mean_hold": 0.5712121212121212,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 4,
+        "attempts": 6,
+        "completion": 0.6666666666666666,
+        "duration": 7.6,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 5,
+        "receivers": [
+          0,
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "mean_hold": 0.5833333333333334,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 20,
+        "attempts": 22,
+        "completion": 0.9090909090909091,
+        "duration": 27.05,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 6,
+        "receivers": [
+          3,
+          3,
+          3,
+          4,
+          3,
+          4
+        ],
+        "mean_hold": 0.5795454545454546,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.45,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.6,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 19,
+        "attempts": 20,
+        "completion": 0.95,
+        "duration": 24.7,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 6,
+        "receivers": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          4
+        ],
+        "mean_hold": 0.5725,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 0,
+        "attempts": 1,
+        "completion": 0.0,
+        "duration": 1.45,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 1,
+        "receivers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_hold": 0.6,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 5,
+        "attempts": 6,
+        "completion": 0.8333333333333334,
+        "duration": 7.4,
+        "turnovers": 1,
+        "out_of_bounds": 1,
+        "reason": "out_of_bounds",
+        "distinct_players": 6,
+        "receivers": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "mean_hold": 0.5666666666666665,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      },
+      {
+        "passes": 32,
+        "attempts": 33,
+        "completion": 0.9696969696969697,
+        "duration": 40.0,
+        "turnovers": 0,
+        "out_of_bounds": 0,
+        "reason": "time_limit",
+        "distinct_players": 6,
+        "receivers": [
+          5,
+          5,
+          5,
+          5,
+          6,
+          6
+        ],
+        "mean_hold": 0.5712121212121212,
+        "interceptions": 0,
+        "interception_locations": [],
+        "time_to_interception": null,
+        "pressing_efficiency": 0.0
+      }
+    ],
+    "note": "CI is a normal approximation across scenario seeds, not independent training runs. Pressing efficiency = interceptions per simulated second."
+  }
+}
