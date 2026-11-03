@@ -1,5 +1,7 @@
 # Public simulation demo
 
+Published at [prithvi-kaizen.github.io/rondo-lab](https://prithvi-kaizen.github.io/rondo-lab/). The repository uses GitHub Actions as its Pages source.
+
 The `demo` build is a standalone static website. It uses the same pitch interpolation and decision inspector as the local lab, but loads committed recordings from `frontend/public/demo`. It never requests `/api`, starts training, or loads model weights. The full local application remains the normal build.
 
 ```bash
@@ -25,3 +27,5 @@ Browser QA: the production static build was served from port 4173, independently
 Design gate: hard gate PASS (keyboard controls, loading/error states, source-backed recordings and 390px overflow check); purpose gate PASS (turf and team colors retain football meaning); liveliness PASS (pitch focal point, restrained accent and recorded movement); craftsmanship PASS (both builds and actual scripted/checkpoint browser playback verified, no console errors).
 
 ![Static demo browser verification](public-demo.jpg)
+
+Deployment verified on 3 November 2026: public project-path assets and catalog loaded in the browser. Scripted and actual checkpoint playback were checked on the hosted URL. The initial build ran before Pages was enabled; retrying after enabling Actions hosting resolved that setup failure.

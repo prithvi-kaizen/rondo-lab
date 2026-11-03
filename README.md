@@ -6,6 +6,8 @@ The default is a **12 × 12m rectangular training grid**. Easy is 15m; hard is 1
 
 ## Browser demo
 
+[**Open the live simulation gallery**](https://prithvi-kaizen.github.io/rondo-lab/) · [GitHub repository](https://github.com/prithvi-kaizen/rondo-lab)
+
 The static simulation gallery includes three scripted scenarios, real generation 0/5/10 policy recordings, synchronized comparisons, tactical overlays and timeline controls. It needs no Python backend or model download. Training remains available in the local lab.
 
 ```bash
