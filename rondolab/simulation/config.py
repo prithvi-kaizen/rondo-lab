@@ -2,8 +2,9 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class Config(BaseModel):
-    width: float = Field(15, ge=10, le=25)
-    height: float = Field(15, ge=10, le=25)
+    environment_version: int = Field(2, ge=1, le=2)
+    width: float = Field(12, ge=10, le=25)
+    height: float = Field(12, ge=10, le=25)
     dt: float = Field(.05, ge=.01, le=.05)
     decision_steps: int = Field(4, ge=1, le=10)
     duration: float = Field(40, ge=5, le=180)
@@ -11,20 +12,26 @@ class Config(BaseModel):
     defender_speed: float = Field(2.3, ge=0, le=7)
     acceleration: float = Field(6, ge=1, le=15)
     turning_rate: float = Field(5.5, ge=.5, le=12)
-    ball_speed: float = Field(10, ge=4, le=18)
+    ball_speed: float = Field(7, ge=4, le=18)
     resistance: float = Field(.3, ge=0, le=2)
     pass_error: float = Field(.015, ge=0, le=.3)
     control_radius: float = Field(.65, ge=.3, le=1)
     interception_radius: float = Field(.6, ge=.2, le=1)
     reaction_time: float = Field(.15, ge=0, le=.6)
+    receiving_time: float = Field(.32, ge=.05, le=.8)
+    pass_preparation: float = Field(.12, ge=0, le=.5)
+    pressure_radius: float = Field(2.5, ge=1, le=4)
+    pass_strength: float = Field(1, ge=.65, le=1.3)
     support_radius: float = Field(1.3, ge=0, le=3)
     max_hold: float = Field(3, ge=.4, le=10)
     max_touches: int = Field(0, ge=0, le=2)
     pair_limit: int = Field(0, ge=0, le=8)
     defender_strategy: str = 'cover_press'
     reward: str = 'moderate'
-    loss_penalty: float = Field(2, ge=0, le=10)
-    curriculum: int = Field(4, ge=1, le=6)
+    loss_penalty: float = Field(4, ge=0, le=10)
+    time_reward: float = Field(.1, ge=0, le=1)
+    pass_reward: float = Field(.08, ge=0, le=2)
+    curriculum: int = Field(2, ge=1, le=6)
 
     @model_validator(mode='after')
     def choices(self):
@@ -36,7 +43,11 @@ class Config(BaseModel):
 
 
 PRESETS = {
-    'Classic 6v2': {},
+    'Standard · 12m grid': {},
+    'Easy · 15m grid': {'width': 15, 'height': 15},
+    'Hard · 10m grid': {'width': 10, 'height': 10},
+    'Legacy · 15m hexagon': {'environment_version': 1, 'width': 15, 'height': 15,
+                              'loss_penalty': 2},
     'Beginner Rondo': {'defender_speed': 1, 'defender_strategy': 'chase', 'curriculum': 2},
     'High Pressure': {'defender_speed': 3.4, 'max_hold': 1.5, 'curriculum': 5},
     'One-Touch Rondo': {'max_touches': 1, 'max_hold': .7},

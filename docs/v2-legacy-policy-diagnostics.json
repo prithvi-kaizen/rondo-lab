@@ -1,0 +1,466 @@
+{
+  "checkpoint": "experiments/possession-smoke/possession-004096.pt",
+  "episodes": [
+    {
+      "passes": 4,
+      "interceptions": 1,
+      "duration": 4.75,
+      "reason": "interception",
+      "average_pass_distance": 6.858890513390032,
+      "average_ball_travel_time": 0.54,
+      "average_nearest_defender_distance": 3.9710109709640933,
+      "minimum_lane_reach_time": 1.1801888717187123,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 4
+      },
+      "average_pressure": 0.04714452861687391,
+      "pressure_fraction": 0.16666666666666666,
+      "average_open_lanes": 4.166666666666667,
+      "both_chasing_fraction": 0.041666666666666664,
+      "defender_movement_distance": [
+        9.310369536000527,
+        8.509340077686922
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 4,
+      "interceptions": 1,
+      "duration": 5.0,
+      "reason": "interception",
+      "average_pass_distance": 6.836581904227758,
+      "average_ball_travel_time": 0.5600000000000002,
+      "average_nearest_defender_distance": 3.8851339559372584,
+      "minimum_lane_reach_time": 1.2117231024423614,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 4
+      },
+      "average_pressure": 0.07787863868718399,
+      "pressure_fraction": 0.19230769230769232,
+      "average_open_lanes": 4.25,
+      "both_chasing_fraction": 0.038461538461538464,
+      "defender_movement_distance": [
+        9.597412519273595,
+        9.059464895321023
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 4,
+      "interceptions": 1,
+      "duration": 4.35,
+      "reason": "interception",
+      "average_pass_distance": 6.7944894599463215,
+      "average_ball_travel_time": 0.53,
+      "average_nearest_defender_distance": 3.9557699304075062,
+      "minimum_lane_reach_time": 1.3167208034789528,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 4
+      },
+      "average_pressure": 0.04754073741224956,
+      "pressure_fraction": 0.13636363636363635,
+      "average_open_lanes": 4.090909090909091,
+      "both_chasing_fraction": 0.045454545454545456,
+      "defender_movement_distance": [
+        8.238374196351842,
+        7.963484751942501
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 3,
+      "interceptions": 1,
+      "duration": 3.65,
+      "reason": "interception",
+      "average_pass_distance": 6.744071561988999,
+      "average_ball_travel_time": 0.4875000000000001,
+      "average_nearest_defender_distance": 4.121092811275226,
+      "minimum_lane_reach_time": 1.4507524452708296,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 3
+      },
+      "average_pressure": 0.04267270089682849,
+      "pressure_fraction": 0.10526315789473684,
+      "average_open_lanes": 4.2,
+      "both_chasing_fraction": 0.05263157894736842,
+      "defender_movement_distance": [
+        7.971004661422435,
+        6.788833811642201
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 3,
+      "interceptions": 1,
+      "duration": 3.75,
+      "reason": "interception",
+      "average_pass_distance": 6.771458786709061,
+      "average_ball_travel_time": 0.5250000000000001,
+      "average_nearest_defender_distance": 3.85428239665864,
+      "minimum_lane_reach_time": 1.217002573641243,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 3
+      },
+      "average_pressure": 0.03476756417550197,
+      "pressure_fraction": 0.15789473684210525,
+      "average_open_lanes": 4.2,
+      "both_chasing_fraction": 0.05263157894736842,
+      "defender_movement_distance": [
+        7.348088196441272,
+        7.135100855447839
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 4,
+      "interceptions": 1,
+      "duration": 4.75,
+      "reason": "interception",
+      "average_pass_distance": 6.870267446745356,
+      "average_ball_travel_time": 0.54,
+      "average_nearest_defender_distance": 3.912816904027969,
+      "minimum_lane_reach_time": 1.1631851816532977,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 4
+      },
+      "average_pressure": 0.054279071717870254,
+      "pressure_fraction": 0.16666666666666666,
+      "average_open_lanes": 4.25,
+      "both_chasing_fraction": 0.041666666666666664,
+      "defender_movement_distance": [
+        9.62567891572049,
+        8.960242058707408
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 4,
+      "interceptions": 1,
+      "duration": 4.35,
+      "reason": "interception",
+      "average_pass_distance": 7.011706085340141,
+      "average_ball_travel_time": 0.55,
+      "average_nearest_defender_distance": 3.793143801235219,
+      "minimum_lane_reach_time": 1.2284526710083026,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        2
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 4
+      },
+      "average_pressure": 0.05962262307434933,
+      "pressure_fraction": 0.13636363636363635,
+      "average_open_lanes": 4.2,
+      "both_chasing_fraction": 0.045454545454545456,
+      "defender_movement_distance": [
+        8.109410218364607,
+        7.902297449418333
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 3,
+      "interceptions": 1,
+      "duration": 3.55,
+      "reason": "interception",
+      "average_pass_distance": 6.617027382677179,
+      "average_ball_travel_time": 0.5125,
+      "average_nearest_defender_distance": 4.031427197761373,
+      "minimum_lane_reach_time": 1.474605000622446,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 3
+      },
+      "average_pressure": 0.03709936689860791,
+      "pressure_fraction": 0.1111111111111111,
+      "average_open_lanes": 4.222222222222222,
+      "both_chasing_fraction": 0.05555555555555555,
+      "defender_movement_distance": [
+        7.038776756174131,
+        6.971354049330093
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 3,
+      "interceptions": 1,
+      "duration": 3.75,
+      "reason": "interception",
+      "average_pass_distance": 6.68793126464832,
+      "average_ball_travel_time": 0.5250000000000001,
+      "average_nearest_defender_distance": 3.7790004775578327,
+      "minimum_lane_reach_time": 1.17511167050762,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 3
+      },
+      "average_pressure": 0.03744836966574919,
+      "pressure_fraction": 0.15789473684210525,
+      "average_open_lanes": 4.2,
+      "both_chasing_fraction": 0.05263157894736842,
+      "defender_movement_distance": [
+        7.3037054806255695,
+        7.053789966114474
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    },
+    {
+      "passes": 3,
+      "interceptions": 1,
+      "duration": 3.7,
+      "reason": "interception",
+      "average_pass_distance": 6.737758937648452,
+      "average_ball_travel_time": 0.5125,
+      "average_nearest_defender_distance": 3.807411262010655,
+      "minimum_lane_reach_time": 1.184350910260894,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 3
+      },
+      "average_pressure": 0.03566236180102274,
+      "pressure_fraction": 0.15789473684210525,
+      "average_open_lanes": 4.2,
+      "both_chasing_fraction": 0.05263157894736842,
+      "defender_movement_distance": [
+        7.202537149251549,
+        7.062690049247371
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6.0,
+      "ball_speed": 10.0,
+      "flags": []
+    }
+  ],
+  "definitions": "Direction bins span -pi to pi. Lane reach time is an optimistic from-rest reach estimate, not observed intent."
+}

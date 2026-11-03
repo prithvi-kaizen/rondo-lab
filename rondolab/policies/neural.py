@@ -9,9 +9,11 @@ from rondolab.environments.parallel import ACTION_SIZE, OBS_SIZE, action_mask, o
 
 
 class ActorCritic(nn.Module):
-    def __init__(self):
+    def __init__(self, obs_size=OBS_SIZE, environment_version=2):
         super().__init__()
-        self.body = nn.Sequential(nn.Linear(OBS_SIZE, 96), nn.Tanh(), nn.Linear(96, 96), nn.Tanh())
+        self.environment_version = environment_version
+        self.obs_size = obs_size
+        self.body = nn.Sequential(nn.Linear(obs_size, 96), nn.Tanh(), nn.Linear(96, 96), nn.Tanh())
         self.actor = nn.Linear(96, ACTION_SIZE)
         self.critic = nn.Linear(96, 1)
         nn.init.orthogonal_(self.actor.weight, .01)
@@ -24,6 +26,8 @@ class ActorCritic(nn.Module):
 
     @torch.no_grad()
     def decisions(self, world, indices, scenario='adaptive', deterministic=True):
+        if world.config.environment_version != self.environment_version:
+            raise ValueError('Policy/environment versions differ; use explicit legacy playback for v1 weights.')
         obs = torch.tensor(np.stack([observation(world, i) for i in indices]), dtype=torch.float32,
                            device=next(self.parameters()).device)
         masks = torch.tensor(np.stack([action_mask(world, i, scenario) for i in indices]), device=obs.device)
@@ -42,13 +46,23 @@ class ActorCritic(nn.Module):
 def save_checkpoint(path, model, metadata, optimizer=None):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    torch.save({'schema_version': 1, 'state_dict': model.cpu().state_dict(), 'metadata': metadata,
-                'optimizer': optimizer.state_dict() if optimizer is not None else None}, path)
+    metadata = {'environment_version': model.environment_version, 'observation_size': model.obs_size,
+                'action_version': model.environment_version, 'compatibility': f'rondo-v{model.environment_version}',
+                **metadata}
+    payload = {'schema_version': 2, 'state_dict': {k: v.detach().cpu() for k, v in model.state_dict().items()},
+               'metadata': metadata, 'optimizer': optimizer.state_dict() if optimizer is not None else None}
+    temporary = path.with_suffix('.pt.tmp')
+    torch.save(payload, temporary)
+    temporary.replace(path)
 
 
 def load_checkpoint(path, device='cpu'):
     data = torch.load(path, map_location=device, weights_only=True)
-    model = ActorCritic().to(device)
+    metadata = data['metadata']
+    version = metadata.get('environment_version', 1)
+    metadata = {'environment_version': version, 'compatibility': f'rondo-v{version}', 'generation': 0, **metadata}
+    with torch.random.fork_rng(devices=[]):
+        model = ActorCritic(data['state_dict']['body.0.weight'].shape[1], version).to(device)
     model.load_state_dict(data['state_dict'])
     model.eval()
-    return model, data['metadata']
+    return model, metadata

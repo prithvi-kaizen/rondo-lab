@@ -19,7 +19,7 @@ def test_spaces_masks_rewards_and_truncation():
     env = RondoParallelEnv(Config(duration=5, defender_speed=0, max_hold=10))
     obs, _ = env.reset(seed=3)
     assert all(env.observation_space(a).contains(o) for a, o in obs.items())
-    assert observation(env.world, 0).shape == (90,)
+    assert observation(env.world, 0).shape == (110,)
     assert action_mask(env.world, 0)[1] == 0
     for _ in range(25):
         obs, rewards, term, trunc, infos = env.step({a: 0 for a in env.agents})

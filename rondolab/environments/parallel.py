@@ -6,9 +6,10 @@ from gymnasium import spaces
 from pettingzoo import ParallelEnv
 
 from rondolab.policies.heuristics import scripted_actions
+from rondolab.simulation.physics import lane_margin
 from rondolab.simulation.world import World, norm
 
-OBS_SIZE = 90
+OBS_SIZE = 110
 ACTION_SIZE = 12
 
 
@@ -25,6 +26,18 @@ def observation(world, idx):
     values.extend([p.pos[0] / c.width, (c.width - p.pos[0]) / c.width,
                    p.pos[1] / c.height, (c.height - p.pos[1]) / c.height,
                    float(b.carrier is None), world.time / c.duration])
+    if c.environment_version == 2:
+        values.extend([world.pressure(p.pos), max(0., world.receive_delay - world.hold),
+                       float(world.pending_pass is not None and b.carrier == idx), float(idx < 6),
+                       float(c.max_touches) / 2, c.defender_speed / 7])
+        values.extend([lane_margin(world, q) / max(c.width, c.height) for q in world.players[:6]])
+        if idx < 6:
+            lo, hi = world.regions[idx]
+            values.extend([*((lo - p.pos) / scale), *((hi - p.pos) / scale)])
+        else:
+            partner = world.players[13 - idx]
+            values.extend([*((partner.pos - p.pos) / scale), *(partner.vel / 7)])
+        values.extend([*(p.vel - b.vel) / 18, world.pressure(b.pos), world.hold / c.max_hold])
     return np.clip(np.array(values, dtype=np.float32), -2, 2)
 
 
@@ -32,7 +45,8 @@ def action_mask(world, idx, scenario='adaptive'):
     mask = np.zeros(ACTION_SIZE, dtype=np.int8)
     mask[0] = 1
     if idx < 6:
-        if world.ball.carrier == idx and world.hold >= .18:
+        delay = .18 if world.config.environment_version == 1 else world.receive_delay
+        if world.ball.carrier == idx and world.hold >= delay:
             mask[1:7] = 1
             mask[idx + 1] = 0
             if world.config.pair_limit and world.pair_count >= world.config.pair_limit and world.pair:
@@ -41,18 +55,20 @@ def action_mask(world, idx, scenario='adaptive'):
         if scenario != 'basic':
             mask[7:] = 1
     else:
-        mask[:10] = 1
+        mask[:10 if world.config.environment_version == 1 else 12] = 1
     return mask
 
 
 def reward_components(world, events, invalid=False):
     c = world.config
     parts = {'possession_time': 0., 'pass': 0., 'turnover': 0., 'invalid': -.05 if invalid else 0.}
+    legacy = c.environment_version == 1
     if c.reward != 'sparse':
-        parts['possession_time'] = .02 * c.dt * c.decision_steps
+        parts['possession_time'] = (.02 if legacy else c.time_reward) * c.dt * c.decision_steps
     for e in events:
         if e['type'] == 'reception':
-            parts['pass'] += 1 if c.reward != 'heavy' else 1.5
+            parts['pass'] += (1 if c.reward != 'heavy' else 1.5) if legacy else (
+                c.pass_reward if c.reward == 'moderate' else .4 if c.reward == 'heavy' else 0)
         elif e['type'] in ('interception', 'tackle', 'holding_limit', 'out_of_bounds'):
             parts['turnover'] -= c.loss_penalty
         elif e['type'] == 'illegal_pair':
@@ -73,7 +89,7 @@ class RondoParallelEnv(ParallelEnv):
         self.agents = []
         self.render_mode = None
         self._observation_spaces = {a: spaces.Dict({
-            'observation': spaces.Box(-2., 2., (OBS_SIZE,), np.float32),
+            'observation': spaces.Box(-2., 2., (90 if self.world.config.environment_version == 1 else OBS_SIZE,), np.float32),
             'action_mask': spaces.MultiBinary(ACTION_SIZE)}) for a in self.possible_agents}
         self._action_spaces = {a: spaces.Discrete(ACTION_SIZE) for a in self.possible_agents}
 
@@ -136,7 +152,7 @@ class PassingEnv(gym.Env):
 
     def __init__(self, config=None):
         self.parallel = RondoParallelEnv(config, 'basic')
-        self.observation_space = spaces.Box(-2., 2., (OBS_SIZE,), np.float32)
+        self.observation_space = spaces.Box(-2., 2., (90 if self.parallel.world.config.environment_version == 1 else OBS_SIZE,), np.float32)
         self.action_space = spaces.Discrete(ACTION_SIZE)
 
     def reset(self, seed=None, options=None):

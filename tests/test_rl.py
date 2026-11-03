@@ -23,7 +23,7 @@ def test_clipped_loss_and_masked_gradients(tmp_path):
     assert np.isclose(float(clipped_loss(torch.tensor([np.log(2)]), torch.tensor([0.]),
                                         torch.tensor([1.]))), -1.2)
     model = ActorCritic()
-    obs = torch.zeros((4, 90))
+    obs = torch.zeros((4, 110))
     masks = torch.zeros((4, 12), dtype=torch.bool)
     masks[:, :2] = True
     dist, values = model(obs, masks)

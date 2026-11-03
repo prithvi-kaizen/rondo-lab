@@ -1,287 +1,310 @@
 import math
-from dataclasses import dataclass, field
 
 import numpy as np
 
-from .config import Config
+from rondolab.legacy.world import Ball, Player, angle_delta, norm, segment_distance, unit
+from rondolab.legacy.world import World as LegacyWorld
+from rondolab.simulation.physics import first_contact, intercept_point, lane_margin
 
 
-def norm(v):
-    return float(np.linalg.norm(v))
-
-
-def unit(v):
-    return v / max(norm(v), 1e-9)
-
-
-def angle_delta(a, b):
-    return (a - b + math.pi) % (2 * math.pi) - math.pi
-
-
-def segment_distance(p, a, b):
-    d = b - a
-    t = float(np.clip(np.dot(p - a, d) / max(np.dot(d, d), 1e-10), 0, 1))
-    return norm(p - a - t * d), t
-
-
-@dataclass
-class Player:
-    id: int
-    team: str
-    pos: np.ndarray
-    anchor: np.ndarray
-    vel: np.ndarray = field(default_factory=lambda: np.zeros(2))
-    facing: float = 0
-    angular_velocity: float = 0
-    intention: str = 'support'
-    action: int = 0
-    probabilities: list | None = None
-    value: float | None = None
-    control: str = 'scripted'
-
-
-@dataclass
-class Ball:
-    pos: np.ndarray
-    vel: np.ndarray = field(default_factory=lambda: np.zeros(2))
-    carrier: int | None = 0
-    previous_carrier: int | None = None
-    origin: list | None = None
-    target: int | None = None
-    last_touch: int = 0
-    flight_time: float = 0
-
-
-class World:
-    def __init__(self, config=None, seed=42):
-        self.config = config or Config()
-        self.reset(seed)
+class World(LegacyWorld):
+    """Environment v2; v1 is an explicit frozen engine, never an implicit weight transfer."""
+    def __new__(cls, config=None, seed=42):
+        if config is not None and config.environment_version == 1:
+            return LegacyWorld(config, seed)
+        return super().__new__(cls)
 
     def reset(self, seed=42):
         self.seed = seed
         self.rng = np.random.default_rng(seed)
         c = self.config
-        center = np.array([c.width / 2, c.height / 2])
         self.players = []
-        for i in range(6):
-            a = math.pi + i * math.pi / 3
-            p = center + np.array([math.cos(a) * (c.width / 2 - 1.5),
-                                   math.sin(a) * (c.height / 2 - 1.4)])
-            p += self.rng.uniform(-.18, .18, 2)
-            self.players.append(Player(i, 'possession', p, p.copy(), facing=math.atan2(*(center - p)[::-1])))
-        for i, offset in enumerate(([-1.3, -.8], [1.1, 1.2])):
-            p = center + offset + self.rng.uniform(-.15, .15, 2)
+        anchors = [(.8, .8), (c.width / 2, .8), (c.width - .8, .8),
+                   (c.width - .8, c.height - .8), (c.width / 2, c.height - .8), (.8, c.height - .8)]
+        center = np.array([c.width / 2, c.height / 2])
+        self.regions = []
+        for i, (x, y) in enumerate(anchors):
+            anchor = np.array([x, y])
+            p = anchor + self.rng.uniform(-.12, .12, 2)
+            self.players.append(Player(i, 'possession', p, anchor,
+                                       facing=math.atan2(*(center - p)[::-1])))
+            reach = c.support_radius
+            lower = np.maximum([.45, .45], anchor - [reach, reach])
+            upper = np.minimum([c.width - .45, c.height - .45], anchor + [reach, reach])
+            self.regions.append((lower, upper))
+        shift = self.rng.uniform(-.7, .7, 2)
+        for i, offset in enumerate(([-1.0, -.8], [1., 1.])):
+            p = center + offset + shift + self.rng.uniform(-.2, .2, 2)
             self.players.append(Player(i + 6, 'defending', p, p.copy(), facing=math.pi))
+        for p in self.players:
+            p.previous_action = 0
+            p.target = p.pos.copy()
+            p.last_interception_attempt = None
         self.ball = Ball(self.players[0].pos.copy())
         self.time = self.hold = 0.
         self.done = False
         self.reason = None
-        self.events = []
-        self.step_events = []
+        self.events, self.step_events = [], []
         self.passes = self.attempts = 0
         self.pair = None
         self.pair_count = 0
         self.actions = {i: 0 for i in range(8)}
         self.targets = {p.id: p.pos.copy() for p in self.players}
         self.reaction_targets = {p.id: p.pos.copy() for p in self.players}
+        self.previous_positions = [p.pos.copy() for p in self.players]
         self.next_reaction = 0.
         self.receivers = [0] * 6
         self.hold_times = []
         self.involved = {0}
+        self.pending_pass = None
+        self.pending_since = 0.
+        self.receive_delay = c.receiving_time
+        self.flight_context = {}
+        self.attempted_defenders = set()
+        self.contact_cooldowns = {}
+        self.statistics = {'samples': 0, 'nearest_distance': 0., 'pressure': 0., 'pressured': 0,
+                           'open_lanes': 0., 'both_chasing': 0, 'coordinated': 0,
+                           'defender_distance': [0., 0.], 'pressured_receptions': 0,
+                           'split_passes': 0, 'central_interceptions': 0}
         return self
 
-    def event(self, kind, **kwargs):
-        e = {'type': kind, 'time': round(self.time, 4), **kwargs}
-        self.events.append(e)
-        self.step_events.append(e)
+    def pressure(self, point):
+        distance = min(norm(p.pos - point) for p in self.players[6:])
+        return max(0., 1 - distance / self.config.pressure_radius)
 
-    def turnover(self, reason, defender=None):
-        self.done, self.reason = True, reason
-        self.event(reason, defender=defender, position=self.ball.pos.tolist())
-        if defender is not None:
-            self.ball.carrier = defender
-            self.ball.last_touch = defender
-        self.ball.vel[:] = 0
-
-    def release(self, target):
-        b, c = self.ball, self.config
-        if b.carrier is None or b.carrier >= 6 or target == b.carrier:
-            return
-        p = self.players[b.carrier]
-        if self.hold < .18:
-            return
-        pair = tuple(sorted((p.id, target)))
-        if c.pair_limit and self.pair == pair and self.pair_count >= c.pair_limit:
-            self.event('illegal_pair', player=p.id)
-            return
-        self.pair_count = self.pair_count + 1 if self.pair == pair else 1
-        self.pair = pair
-        receiver = self.players[target]
-        # Lead the moving receiver using an estimate from currently visible velocity.
-        travel_time = norm(receiver.pos - b.pos) / c.ball_speed
-        support_target = self.tactical_target(receiver)
-        lead = receiver.vel * min(travel_time, .6)
-        remaining = norm(support_target - receiver.pos)
-        aim = receiver.pos + unit(lead) * min(norm(lead), remaining)
-        direction = unit(aim - b.pos)
-        turn = abs(angle_delta(math.atan2(direction[1], direction[0]), p.facing))
-        if turn > 1.25 and self.hold < .45:
-            return
-        pressure = max(0, 1 - min(norm(d.pos - p.pos) for d in self.players[6:]) / 2.5)
-        error = self.rng.normal(0, c.pass_error * (1 + pressure + turn))
-        co, si = math.cos(error), math.sin(error)
-        direction = np.array([co * direction[0] - si * direction[1], si * direction[0] + co * direction[1]])
-        b.origin = b.pos.tolist()
-        b.previous_carrier, b.last_touch = p.id, p.id
-        b.target, b.carrier, b.flight_time = target, None, 0
-        b.vel = direction * c.ball_speed
-        self.attempts += 1
-        self.hold_times.append(self.hold)
-        self.hold = 0
-        self.event('pass', player=p.id, target=target, origin=b.origin)
+    def project_region(self, idx, point):
+        lower, upper = self.regions[idx]
+        return np.clip(point, lower, upper)
 
     def set_actions(self, actions):
         self.actions = {int(i): int(a) for i, a in actions.items()}
         for p in self.players:
-            p.action = self.actions.get(p.id, 0)
-        b = self.ball
-        if b.carrier is not None and b.carrier < 6:
-            a = self.actions.get(b.carrier, 0)
-            if 1 <= a <= 6:
-                self.release(a - 1)
+            p.previous_action, p.action = p.action, self.actions.get(p.id, 0)
+        carrier = self.ball.carrier
+        chosen = self.actions.get(carrier, 0)
+        target = chosen - 1 if carrier is not None and carrier < 6 and 1 <= chosen <= 6 else None
+        if target != self.pending_pass:
+            self.pending_pass = target
+            self.pending_since = self.time
+
+    def release(self, target):
+        b, c = self.ball, self.config
+        if b.carrier is None or b.carrier >= 6 or target == b.carrier:
+            return False
+        p, receiver = self.players[b.carrier], self.players[target]
+        if self.hold < self.receive_delay or norm(b.pos - p.pos) > .15:
+            return False
+        if self.pending_pass is not None and self.time - self.pending_since < c.pass_preparation:
+            return False
+        # Predict only visible velocity, bounded by the receiver's assigned support region.
+        travel = norm(receiver.pos - b.pos) / (c.ball_speed * c.pass_strength)
+        aim = self.project_region(target, receiver.pos + receiver.vel * min(travel, .45))
+        direction = unit(aim - b.pos)
+        turn = abs(angle_delta(math.atan2(direction[1], direction[0]), p.facing))
+        if turn > .55:
+            return False
+        pair = tuple(sorted((p.id, target)))
+        if c.pair_limit and pair == self.pair and self.pair_count >= c.pair_limit:
+            self.event('illegal_pair', player=p.id)
+            self.pending_pass = None
+            return False
+        self.pair_count = self.pair_count + 1 if pair == self.pair else 1
+        self.pair = pair
+        pressure = self.pressure(p.pos)
+        error = self.rng.normal(0, c.pass_error * (1 + pressure * 2 + turn))
+        co, si = math.cos(error), math.sin(error)
+        direction = np.array([co * direction[0] - si * direction[1], si * direction[0] + co * direction[1]])
+        delta = receiver.pos - b.pos
+        signed = [float(delta[0] * (d.pos[1] - b.pos[1]) - delta[1] * (d.pos[0] - b.pos[0]))
+                  for d in self.players[6:]]
+        projections = [float((d.pos - b.pos) @ delta / max(delta @ delta, 1e-9)) for d in self.players[6:]]
+        split = signed[0] * signed[1] < 0 and all(0 < t < 1 for t in projections) and all(
+            segment_distance(d.pos, b.pos, receiver.pos)[0] < 2.5 for d in self.players[6:])
+        self.flight_context = {'split': bool(split), 'player': p.id, 'target': target,
+                               'release_time': self.time, 'pressure': pressure}
+        b.origin = b.pos.tolist()
+        b.previous_carrier, b.last_touch = p.id, p.id
+        b.target, b.carrier, b.flight_time = target, None, 0.
+        b.vel = direction * c.ball_speed * c.pass_strength
+        self.hold_times.append(self.hold)
+        self.attempts += 1
+        self.hold = 0.
+        self.pending_pass = None
+        self.attempted_defenders.clear()
+        self.event('pass', player=p.id, target=target, origin=b.origin, distance=norm(delta),
+                   direction=math.atan2(direction[1], direction[0]), split=bool(split), pressure=pressure)
+        return True
 
     def tactical_target(self, p):
-        c, b, a = self.config, self.ball, self.actions.get(p.id, 0)
+        c, b, action = self.config, self.ball, self.actions.get(p.id, 0)
         if p.id < 6:
-            pressure = min(self.players[6:], key=lambda d: norm(d.pos - p.pos))
-            away = unit(p.pos - pressure.pos)
-            toward = unit(b.pos - p.anchor)
-            tangent = np.array([-toward[1], toward[0]])
-            offset = (away * .7 + tangent * .25) * c.support_radius
-            if a == 7:
-                offset = tangent * c.support_radius
-            elif a == 8:
-                offset = -tangent * c.support_radius
-            elif a == 9:
-                offset = unit(b.pos - p.pos) * c.support_radius
-            elif a == 10:
-                offset = away * c.support_radius
-            elif a == 11:
-                offset = np.zeros(2)
-            p.intention = {7: 'rotate clockwise', 8: 'rotate counterclockwise', 9: 'support angle',
-                           10: 'away from pressure', 11: 'recover anchor'}.get(a, 'support')
+            nearest = min(self.players[6:], key=lambda d: norm(d.pos - p.pos))
+            if action == 7:
+                target, intention = p.pos + [-c.support_radius, 0], 'adjust left in region'
+            elif action == 8:
+                target, intention = p.pos + [c.support_radius, 0], 'adjust right in region'
+            elif action == 10:
+                target, intention = p.pos + unit(p.pos - nearest.pos) * c.support_radius, 'separate from pressure'
+            elif action == 11:
+                target, intention = p.anchor, 'recover anchor'
+            elif action == 9:
+                # Search within a bounded region for an observable receiving angle.
+                lo, hi = self.regions[p.id]
+                candidates = [p.anchor, lo, hi, np.array([lo[0], hi[1]]), np.array([hi[0], lo[1]])]
+                def support_score(point):
+                    clearance = min(segment_distance(d.pos, b.pos, point)[0] for d in self.players[6:])
+                    separation = min(norm(d.pos - point) for d in self.players[6:])
+                    spacing = min(norm(q.pos - point) for q in self.players[:6] if q.id != p.id)
+                    return clearance + .35 * separation + .15 * min(spacing, 3) - .12 * norm(point - p.pos)
+                target, intention = max(candidates, key=support_score), 'offer receiving angle'
+            else:
+                target, intention = p.pos, 'hold support position'
             if b.carrier == p.id:
-                p.intention = 'hold' if a == 0 else f'pass to {a}'
-                offset *= .35
-            target = p.anchor + offset
-            return np.clip(target, [.65, .65], [c.width - .65, c.height - .65])
-        p.intention = {0: 'press', 1: 'cover', 8: 'recover', 9: 'pursue ball'}.get(a, f'block {a - 1}')
-        if a in (0, 9):
-            return b.pos + b.vel * .1
+                target = p.pos + unit(np.asarray(target) - p.pos) * min(.3, norm(np.asarray(target) - p.pos))
+                intention = f'prepare pass to {self.pending_pass + 1}' if self.pending_pass is not None else 'control ball'
+            p.intention = intention
+            return self.project_region(p.id, target)
+        p.intention = {0: 'angle press', 1: 'cover partner', 8: 'recover center', 9: 'attack observed ball path',
+                       10: 'hold defensive shape', 11: 'close receiver'}.get(action, f'block lane to P{action - 1}')
         center = np.array([c.width / 2, c.height / 2])
-        if a == 8:
-            return center
-        if 2 <= a <= 7:
-            return b.pos * .48 + self.players[a - 2].pos * .52
+        if action == 10:
+            return p.pos.copy()
+        if action == 8:
+            return center + ([-.6, 0] if p.id == 6 else [.6, 0])
+        if action == 9 and b.carrier is None:
+            point, eta, feasible = intercept_point(self, p)
+            if feasible and p.id not in self.attempted_defenders:
+                self.attempted_defenders.add(p.id)
+                p.last_interception_attempt = {'time': self.time, 'point': point.tolist(), 'eta': eta}
+                self.event('interception_attempt', defender=p.id, position=point.tolist(), eta=eta)
+            return point
+        if action in (0, 9):
+            # Offset the approach toward the center to close a lane on the way to the carrier.
+            return b.pos + unit(center - b.pos) * min(.22, norm(center - b.pos))
+        if 2 <= action <= 7:
+            receiver = self.players[action - 2]
+            _, t = segment_distance(p.pos, b.pos, receiver.pos)
+            return b.pos + (receiver.pos - b.pos) * np.clip(t, .32, .78)
         other = self.players[13 - p.id]
-        options = [r for r in self.players[:6] if r.id != b.carrier]
-        receiver = min(options, key=lambda r: norm(r.pos - other.pos) + .4 * norm(r.pos - b.pos))
-        return b.pos * .4 + receiver.pos * .6
+        candidates = [q for q in self.players[:6] if q.id != b.carrier]
+        receiver = min(candidates, key=lambda q: norm(q.pos - p.pos) - .3 * norm(q.pos - other.pos)
+                       + .15 * norm(q.pos - b.pos))
+        if action == 11:
+            return receiver.pos + unit(b.pos - receiver.pos) * .7
+        return b.pos * .35 + receiver.pos * .65
 
     def move_players(self):
-        c = self.config
+        c, b = self.config, self.ball
+        self.previous_positions = [p.pos.copy() for p in self.players]
         if self.time >= self.next_reaction:
             self.reaction_targets = {p.id: self.tactical_target(p).copy() for p in self.players}
             self.next_reaction = self.time + c.reaction_time
         for p in self.players:
-            delta = self.reaction_targets[p.id] - p.pos
-            speed = c.player_speed if p.id < 6 else c.defender_speed
-            if norm(delta) > .05:
-                heading = math.atan2(delta[1], delta[0])
-                turn = float(np.clip(angle_delta(heading, p.facing), -c.turning_rate * c.dt, c.turning_rate * c.dt))
-                p.angular_velocity = turn / c.dt
-                p.facing += turn
-                alignment = max(.18, math.cos(angle_delta(heading, p.facing)))
-                desired = unit(delta) * min(speed, norm(delta) * 2) * alignment
-            else:
-                desired = np.zeros(2)
-            dv = desired - p.vel
-            p.vel += unit(dv) * min(norm(dv), c.acceleration * c.dt)
+            p.target = self.reaction_targets[p.id]
+            delta = p.target - p.pos
+            top = c.player_speed if p.id < 6 else c.defender_speed
+            desired_heading = math.atan2(delta[1], delta[0]) if norm(delta) > .05 else p.facing
+            if b.carrier == p.id and self.pending_pass is not None:
+                aim = self.players[self.pending_pass].pos - p.pos
+                desired_heading = math.atan2(aim[1], aim[0])
+            elif p.id < 6 and norm(delta) < .2:
+                aim = b.pos - p.pos
+                if norm(aim) > .1:
+                    desired_heading = math.atan2(aim[1], aim[0])
+            turn = float(np.clip(angle_delta(desired_heading, p.facing), -c.turning_rate * c.dt,
+                                 c.turning_rate * c.dt))
+            p.angular_velocity = turn / c.dt
+            p.facing += turn
+            heading_error = abs(angle_delta(math.atan2(delta[1], delta[0]), p.facing)) if norm(delta) > .05 else 0
+            desired = unit(delta) * min(top, norm(delta) * 2.5) * max(.2, math.cos(heading_error))
+            change = desired - p.vel
+            p.vel += unit(change) * min(norm(change), c.acceleration * c.dt)
             p.pos += p.vel * c.dt
-            p.pos = np.clip(p.pos, [.35, .35], [c.width - .35, c.height - .35])
             if p.id < 6:
-                offset = p.pos - p.anchor
-                if norm(offset) > c.support_radius + .15:
-                    p.pos = p.anchor + unit(offset) * (c.support_radius + .15)
-                    p.vel *= .5
-        # Equal positional correction resolves overlap without adding kinetic energy.
-        for i, p in enumerate(self.players):
-            for q in self.players[i + 1:]:
-                delta = p.pos - q.pos
-                distance = norm(delta)
-                if distance < .65:
-                    correction = unit(delta if distance > 1e-8 else np.array([1., 0.])) * (.65 - distance) / 2
-                    p.pos += correction
-                    q.pos -= correction
+                p.pos = self.project_region(p.id, p.pos)
+            else:
+                p.pos = np.clip(p.pos, [.35, .35], [c.width - .35, c.height - .35])
+        for _ in range(2):
+            for i, p in enumerate(self.players):
+                for q in self.players[i + 1:]:
+                    delta = p.pos - q.pos
+                    d = norm(delta)
+                    if d < .64:
+                        correction = unit(delta if d > 1e-8 else np.array([1., 0.])) * (.64 - d) / 2
+                        p.pos += correction
+                        q.pos -= correction
+        for p in self.players:
+            if p.id < 6:
+                p.pos = self.project_region(p.id, p.pos)
 
     def move_ball(self):
         b, c = self.ball, self.config
         if b.carrier is not None:
             p = self.players[b.carrier]
-            # Feet are represented at the player center; no release-position jump.
             delta = p.pos - b.pos
-            movement = unit(delta) * min(norm(delta), c.ball_speed * c.dt)
+            movement = unit(delta) * min(norm(delta), c.ball_speed * c.pass_strength * c.dt)
             b.pos += movement
             b.vel = movement / c.dt
             if p.id < 6:
                 self.hold += c.dt
-                if any(norm(d.pos - b.pos) <= c.interception_radius for d in self.players[6:]):
-                    d = min(self.players[6:], key=lambda d: norm(d.pos - b.pos))
-                    self.turnover('tackle', d.id)
-                elif self.hold > min(c.max_hold, {0: c.max_hold, 1: .7, 2: 1.2}[c.max_touches]):
+                for d in self.players[6:]:
+                    contact = first_contact(b.pos - movement, b.pos, self.previous_positions[d.id], d.pos,
+                                            c.interception_radius)
+                    if contact is not None:
+                        self.turnover('tackle', d.id)
+                        return
+                limit = min(c.max_hold, {0: c.max_hold, 1: .85, 2: 1.5}[c.max_touches])
+                if self.hold > limit:
                     self.turnover('holding_limit')
             return
-        # Swept tests ordered by path contact, independent of drawing frame rate.
-        old = b.pos.copy()
-        new = old + b.vel * c.dt
+        old, new = b.pos.copy(), b.pos + b.vel * c.dt
         b.flight_time += c.dt
         hits = []
         for p in self.players:
             if p.id == b.previous_carrier and b.flight_time < .25:
                 continue
+            if self.time < self.contact_cooldowns.get(p.id, -1):
+                continue
             radius = c.interception_radius if p.id >= 6 else c.control_radius
-            distance, t = segment_distance(p.pos, old, new)
-            if distance <= radius:
+            t = first_contact(old, new, self.previous_positions[p.id], p.pos, radius)
+            if t is not None:
                 hits.append((t, p.id))
         if hits:
             t, idx = min(hits)
             b.pos = old + (new - old) * t
             if idx >= 6:
+                self.statistics['central_interceptions'] += int(.25 * c.width < b.pos[0] < .75 * c.width and
+                                                                 .25 * c.height < b.pos[1] < .75 * c.height)
                 self.turnover('interception', idx)
                 return
             p = self.players[idx]
             incoming = math.atan2(-b.vel[1], -b.vel[0])
-            difficulty = abs(angle_delta(incoming, p.facing)) / math.pi
-            # A poor first touch leaves a slower loose ball; never instant relocation.
-            if idx == b.target and self.rng.random() < difficulty * .04:
-                b.vel *= .45
+            orientation = abs(angle_delta(incoming, p.facing)) / math.pi
+            pressure = self.pressure(p.pos)
+            difficulty = .015 + .045 * orientation + .07 * pressure + .01 * max(0, norm(b.vel) - 9)
+            if b.target is not None and self.rng.random() < difficulty:
+                b.vel *= .5
                 b.target = None
-                self.event('failed_reception', player=idx)
-            else:
-                if b.target is not None:
-                    self.passes += 1
-                    self.receivers[idx] += 1
-                    self.involved.add(idx)
-                    self.event('reception', player=idx, origin=b.previous_carrier)
-                else:
-                    self.event('recovery', player=idx)
-                # Receive at the swept contact point. Smoothly converge to feet through motion.
-                b.carrier = idx
-                b.last_touch = idx
-                b.vel = p.vel.copy()
-                b.target = None
-                self.hold = 0
+                self.contact_cooldowns[idx] = self.time + .18
+                self.event('failed_reception', player=idx, pressure=pressure)
                 return
+            if b.target is not None:
+                self.passes += 1
+                self.receivers[idx] += 1
+                self.involved.add(idx)
+                self.statistics['pressured_receptions'] += int(pressure > 0)
+                self.statistics['split_passes'] += int(self.flight_context.get('split', False))
+                self.event('reception', player=idx, origin=b.previous_carrier, pressure=pressure,
+                           split=self.flight_context.get('split', False),
+                           travel_time=b.flight_time)
+            else:
+                self.event('recovery', player=idx)
+            b.carrier, b.last_touch, b.target = idx, idx, None
+            b.vel = p.vel.copy()
+            self.receive_delay = c.receiving_time * (1 + .7 * orientation + .4 * pressure)
+            self.pending_pass = None
+            self.hold = 0.
+            return
         b.pos = new
         speed = norm(b.vel)
         b.vel = unit(b.vel) * max(0, speed - c.resistance * c.dt)
@@ -295,20 +318,39 @@ class World:
         if self.done:
             return
         self.move_players()
+        if self.pending_pass is not None:
+            self.release(self.pending_pass)
         self.move_ball()
         self.time = round(self.time + self.config.dt, 8)
+        s = self.statistics
+        for j in range(2):
+            s['defender_distance'][j] += norm(self.players[j + 6].pos - self.previous_positions[j + 6])
+        if round(self.time / self.config.dt) % self.config.decision_steps == 0:
+            distance = min(norm(d.pos - self.ball.pos) for d in self.players[6:])
+            s['samples'] += 1
+            s['nearest_distance'] += distance
+            s['pressure'] += self.pressure(self.ball.pos)
+            s['pressured'] += int(distance < self.config.pressure_radius)
+            s['open_lanes'] += sum(lane_margin(self, p) > 0 for p in self.players[:6]
+                                   if p.id != self.ball.carrier) / (5 if self.ball.carrier is not None else 6)
+            acts = [self.actions.get(i, 0) for i in (6, 7)]
+            s['both_chasing'] += int(acts == [0, 0])
+            s['coordinated'] += int((0 in acts or 9 in acts) and any(a in range(1, 9) for a in acts)
+                                    and norm(self.players[6].pos - self.players[7].pos) > 1.2)
         if not self.done and self.time >= self.config.duration:
             self.done, self.reason = True, 'time_limit'
             self.event('time_limit')
 
     def frame(self):
-        b = self.ball
-        return {'time': self.time, 'players': [
-            {'id': p.id, 'team': p.team, 'position': p.pos.tolist(), 'velocity': p.vel.tolist(),
-             'facing': p.facing, 'angular_velocity': p.angular_velocity, 'action': p.action,
-             'intention': p.intention, 'control': p.control, 'probabilities': p.probabilities,
-             'value': p.value} for p in self.players],
-            'ball': {'position': b.pos.tolist(), 'velocity': b.vel.tolist(), 'carrier': b.carrier,
-                     'previous_carrier': b.previous_carrier, 'target': b.target, 'origin': b.origin,
-                     'last_touch': b.last_touch, 'in_flight': b.carrier is None},
-            'passes': self.passes, 'attempts': self.attempts, 'hold': self.hold}
+        frame = super().frame()
+        for p, stored in zip(self.players, frame['players'], strict=True):
+            stored.update(previous_action=p.previous_action, target=p.target.tolist(),
+                          pressure=self.pressure(p.pos), ball_distance=norm(p.pos - self.ball.pos),
+                          last_interception_attempt=p.last_interception_attempt,
+                          region=[v.tolist() for v in self.regions[p.id]] if p.id < 6 else None,
+                          receiving_remaining=max(0., self.receive_delay - self.hold)
+                          if self.ball.carrier == p.id else 0.)
+            if p.id >= 6 and self.ball.carrier is None:
+                point, eta, feasible = intercept_point(self, p)
+                stored['intercept_path'] = {'point': point.tolist(), 'eta': eta, 'feasible': feasible}
+        return frame

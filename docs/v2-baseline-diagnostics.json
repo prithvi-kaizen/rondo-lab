@@ -1,0 +1,519 @@
+{
+  "checkpoint": null,
+  "episodes": [
+    {
+      "passes": 32,
+      "interceptions": 0,
+      "duration": 40.0,
+      "reason": "time_limit",
+      "average_pass_distance": 6.6355460801203225,
+      "average_ball_travel_time": 0.5924242424242423,
+      "average_nearest_defender_distance": 5.572923131993986,
+      "minimum_lane_reach_time": 2.304901961618288,
+      "pass_direction_bins": [
+        4,
+        5,
+        6,
+        6,
+        0,
+        6,
+        5,
+        1
+      ],
+      "receiver_selection": [
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 6,
+        "4-5": 6,
+        "3-4": 6,
+        "2-3": 5,
+        "1-2": 5,
+        "0-1": 5
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.794392523364486,
+      "both_chasing_fraction": 0.004975124378109453,
+      "defender_movement_distance": [
+        91.39220647726812,
+        90.39618894113282
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames.",
+        "Long uninterrupted possession without an interception; inspect pressure."
+      ]
+    },
+    {
+      "passes": 4,
+      "interceptions": 0,
+      "duration": 7.0,
+      "reason": "out_of_bounds",
+      "average_pass_distance": 6.6910239802432105,
+      "average_ball_travel_time": 0.5999999999999999,
+      "average_nearest_defender_distance": 5.586659537415477,
+      "minimum_lane_reach_time": 2.204559246053872,
+      "pass_direction_bins": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 1,
+        "3-4": 1,
+        "2-3": 1,
+        "1-2": 1
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.294117647058823,
+      "both_chasing_fraction": 0.027777777777777776,
+      "defender_movement_distance": [
+        15.686612429369783,
+        15.459837743209265
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames."
+      ]
+    },
+    {
+      "passes": 21,
+      "interceptions": 0,
+      "duration": 26.95,
+      "reason": "out_of_bounds",
+      "average_pass_distance": 6.62705688561935,
+      "average_ball_travel_time": 0.6045454545454546,
+      "average_nearest_defender_distance": 5.539264415864417,
+      "minimum_lane_reach_time": 2.285073739078926,
+      "pass_direction_bins": [
+        0,
+        4,
+        4,
+        4,
+        0,
+        4,
+        3,
+        3
+      ],
+      "receiver_selection": [
+        3,
+        3,
+        4,
+        4,
+        4,
+        4
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 4,
+        "4-5": 4,
+        "3-4": 4,
+        "2-3": 4,
+        "1-2": 3,
+        "0-1": 3
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.698630136986301,
+      "both_chasing_fraction": 0.007407407407407408,
+      "defender_movement_distance": [
+        61.43625651737131,
+        60.7199226913878
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames.",
+        "Long uninterrupted possession without an interception; inspect pressure."
+      ]
+    },
+    {
+      "passes": 31,
+      "interceptions": 0,
+      "duration": 40.0,
+      "reason": "time_limit",
+      "average_pass_distance": 6.670947018888657,
+      "average_ball_travel_time": 0.6015625,
+      "average_nearest_defender_distance": 5.566604232916408,
+      "minimum_lane_reach_time": 2.308740662818903,
+      "pass_direction_bins": [
+        0,
+        5,
+        6,
+        6,
+        0,
+        6,
+        5,
+        5
+      ],
+      "receiver_selection": [
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 6,
+        "4-5": 6,
+        "3-4": 6,
+        "2-3": 5,
+        "1-2": 5,
+        "0-1": 5
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.788461538461538,
+      "both_chasing_fraction": 0.004975124378109453,
+      "defender_movement_distance": [
+        91.49662631652293,
+        90.40958097068493
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames.",
+        "Long uninterrupted possession without an interception; inspect pressure."
+      ]
+    },
+    {
+      "passes": 32,
+      "interceptions": 0,
+      "duration": 40.0,
+      "reason": "time_limit",
+      "average_pass_distance": 6.704948705432073,
+      "average_ball_travel_time": 0.5953125000000001,
+      "average_nearest_defender_distance": 5.621180151033129,
+      "minimum_lane_reach_time": 2.3199633039768432,
+      "pass_direction_bins": [
+        0,
+        5,
+        6,
+        4,
+        2,
+        6,
+        5,
+        5
+      ],
+      "receiver_selection": [
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 6,
+        "4-5": 6,
+        "3-4": 6,
+        "2-3": 5,
+        "1-2": 5,
+        "0-1": 5
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.801801801801802,
+      "both_chasing_fraction": 0.004975124378109453,
+      "defender_movement_distance": [
+        91.4368009436304,
+        90.38818958786973
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames.",
+        "Long uninterrupted possession without an interception; inspect pressure."
+      ]
+    },
+    {
+      "passes": 0,
+      "interceptions": 0,
+      "duration": 1.45,
+      "reason": "out_of_bounds",
+      "average_pass_distance": 6.317469772757775,
+      "average_ball_travel_time": 0.7999999999999999,
+      "average_nearest_defender_distance": 4.580290268527301,
+      "minimum_lane_reach_time": 1.6503759367366249,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.75,
+      "both_chasing_fraction": 0.125,
+      "defender_movement_distance": [
+        2.939909067208405,
+        2.860277394866088
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames."
+      ]
+    },
+    {
+      "passes": 33,
+      "interceptions": 0,
+      "duration": 40.0,
+      "reason": "time_limit",
+      "average_pass_distance": 6.647624156457255,
+      "average_ball_travel_time": 0.5909090909090909,
+      "average_nearest_defender_distance": 5.599025218017859,
+      "minimum_lane_reach_time": 2.3181728133532786,
+      "pass_direction_bins": [
+        0,
+        5,
+        6,
+        6,
+        0,
+        6,
+        5,
+        5
+      ],
+      "receiver_selection": [
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 6,
+        "4-5": 6,
+        "3-4": 6,
+        "2-3": 5,
+        "1-2": 5,
+        "0-1": 5
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.862385321100917,
+      "both_chasing_fraction": 0.004975124378109453,
+      "defender_movement_distance": [
+        91.38282417792259,
+        90.35422131291907
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames.",
+        "Long uninterrupted possession without an interception; inspect pressure."
+      ]
+    },
+    {
+      "passes": 5,
+      "interceptions": 0,
+      "duration": 7.55,
+      "reason": "out_of_bounds",
+      "average_pass_distance": 6.661631676085846,
+      "average_ball_travel_time": 0.625,
+      "average_nearest_defender_distance": 5.427766360859894,
+      "minimum_lane_reach_time": 2.171921480796934,
+      "pass_direction_bins": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "receiver_selection": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 1,
+        "3-4": 1,
+        "2-3": 1,
+        "1-2": 1,
+        "0-1": 1
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.5,
+      "both_chasing_fraction": 0.02631578947368421,
+      "defender_movement_distance": [
+        16.998664277788727,
+        16.593905521750063
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames."
+      ]
+    },
+    {
+      "passes": 4,
+      "interceptions": 0,
+      "duration": 6.5,
+      "reason": "out_of_bounds",
+      "average_pass_distance": 6.4825883187746145,
+      "average_ball_travel_time": 0.6799999999999999,
+      "average_nearest_defender_distance": 5.343448755959096,
+      "minimum_lane_reach_time": 2.132529317526357,
+      "pass_direction_bins": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "receiver_selection": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1,
+        "4-5": 1,
+        "3-4": 1,
+        "2-3": 1,
+        "1-2": 1
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.352941176470588,
+      "both_chasing_fraction": 0.030303030303030304,
+      "defender_movement_distance": [
+        14.550381393678695,
+        14.277777930681383
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames."
+      ]
+    },
+    {
+      "passes": 0,
+      "interceptions": 0,
+      "duration": 1.45,
+      "reason": "out_of_bounds",
+      "average_pass_distance": 6.455882001801036,
+      "average_ball_travel_time": 0.7999999999999999,
+      "average_nearest_defender_distance": 4.404788485901047,
+      "minimum_lane_reach_time": 1.558446634066133,
+      "pass_direction_bins": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "receiver_selection": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "adjacent_pass_fraction": 1.0,
+      "pair_counts": {
+        "0-5": 1
+      },
+      "average_pressure": 0.0,
+      "pressure_fraction": 0.0,
+      "average_open_lanes": 4.5,
+      "both_chasing_fraction": 0.125,
+      "defender_movement_distance": [
+        2.936930225775861,
+        2.9046392570808934
+      ],
+      "reaction_time": 0.15,
+      "defender_speed": 2.3,
+      "acceleration": 6,
+      "ball_speed": 10,
+      "flags": [
+        "Defenders pressure the ball on fewer than 10% of sampled frames."
+      ]
+    }
+  ],
+  "definitions": "Direction bins span -pi to pi. Lane reach time is an optimistic from-rest reach estimate, not observed intent."
+}

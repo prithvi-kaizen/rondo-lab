@@ -22,7 +22,7 @@ def test_seed_and_scripted_sequence():
 
 
 def test_ball_rolls_decelerates_without_teleport():
-    w = World(Config(resistance=.5))
+    w = World(Config(width=15, height=15, resistance=.5))
     w.ball.carrier = None
     w.ball.pos = np.array([7., 13.])
     w.ball.vel = np.array([3., 0.])
@@ -68,6 +68,8 @@ def test_speed_turn_and_collision():
 def test_pass_requires_real_travel():
     w = World(Config(defender_speed=0, pass_error=0))
     w.hold = .6
+    direction = w.players[1].pos - w.players[0].pos
+    w.players[0].facing = math.atan2(direction[1], direction[0])
     old = w.ball.pos.copy()
     w.release(1)
     assert np.array_equal(w.ball.pos, old)
