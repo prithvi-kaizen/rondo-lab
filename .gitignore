@@ -9,3 +9,4 @@ experiments/
 *.tsbuildinfo
 examples/*.json
 .DS_Store
+frontend/demo-dist/

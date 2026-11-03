@@ -7,7 +7,8 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "format": "prettier --write src vite.config.ts index.html"
+    "format": "prettier --write src vite.config.ts index.html",
+    "build:demo": "tsc -b && vite build --mode demo --base=./ --outDir demo-dist"
   },
   "dependencies": {
     "react": "^19.0.0",

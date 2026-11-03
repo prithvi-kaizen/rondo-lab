@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "recordings": [
+    {
+      "id": "scripted-42",
+      "label": "Scripted \u00b7 opening scenario",
+      "seed": 42,
+      "file": "scripted-42.json",
+      "checkpoint": null,
+      "sha256": null,
+      "steps": 0,
+      "generation": null,
+      "duration": 40.0,
+      "passes": 22,
+      "reason": "time_limit"
+    },
+    {
+      "id": "scripted-44",
+      "label": "Scripted \u00b7 interception sequence",
+      "seed": 44,
+      "file": "scripted-44.json",
+      "checkpoint": null,
+      "sha256": null,
+      "steps": 0,
+      "generation": null,
+      "duration": 9.1,
+      "passes": 4,
+      "reason": "interception"
+    },
+    {
+      "id": "scripted-10001",
+      "label": "Scripted \u00b7 held-out scenario",
+      "seed": 10001,
+      "file": "scripted-10001.json",
+      "checkpoint": null,
+      "sha256": null,
+      "steps": 0,
+      "generation": null,
+      "duration": 8.4,
+      "passes": 4,
+      "reason": "interception"
+    },
+    {
+      "id": "generation-0",
+      "label": "Untrained \u00b7 generation 0",
+      "seed": 42,
+      "file": "generation-0.json",
+      "checkpoint": "v2-release/possession-000000.pt",
+      "sha256": "85a33f2743682a8d4bc8d776c2686fac1f84b3d2e56c6cab5e6cd72306d84432",
+      "steps": 0,
+      "generation": 0,
+      "duration": 3.0,
+      "passes": 0,
+      "reason": "interception"
+    },
+    {
+      "id": "generation-5",
+      "label": "Intermediate \u00b7 generation 5",
+      "seed": 42,
+      "file": "generation-5.json",
+      "checkpoint": "v2-release/possession-002304.pt",
+      "sha256": "c6a4732cc174915f0809f3344f7a89f391dee622457644a289a119c4c63421f7",
+      "steps": 2304,
+      "generation": 5,
+      "duration": 3.05,
+      "passes": 0,
+      "reason": "holding_limit"
+    },
+    {
+      "id": "generation-10",
+      "label": "Final recorded \u00b7 generation 10",
+      "seed": 42,
+      "file": "generation-10.json",
+      "checkpoint": "v2-release/possession-004864.pt",
+      "sha256": "27124127e9f46b51a3c98e5c6f1de280df99f5c429fc3e125d8967e02ef6db7d",
+      "steps": 4864,
+      "generation": 10,
+      "duration": 3.05,
+      "passes": 0,
+      "reason": "holding_limit"
+    }
+  ]
+}

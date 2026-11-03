@@ -4,6 +4,18 @@ A local football and competitive reinforcement-learning laboratory. Watch a phys
 
 The default is a **12 × 12m rectangular training grid**. Easy is 15m; hard is 10m. Outside players adjust within perimeter regions. Defenders press, cover and pursue interception points or likely receivers inferred from the **visible ball trajectory**. No hidden upcoming pass target is supplied to defenders.
 
+## Browser demo
+
+The static simulation gallery includes three scripted scenarios, real generation 0/5/10 policy recordings, synchronized comparisons, tactical overlays and timeline controls. It needs no Python backend or model download. Training remains available in the local lab.
+
+```bash
+npm ci --prefix frontend
+npm run build:demo --prefix frontend
+python3 -m http.server 4173 --directory frontend/demo-dist
+```
+
+See [public demo hosting and provenance](docs/PUBLIC_DEMO.md). The GitHub Pages workflow builds and publishes the gallery on main pushes once Pages uses GitHub Actions.
+
 ## Launch
 
 Requires Python 3.11+, uv, Node.js 22+ and npm. Verified on Apple Silicon with Python 3.13.5 / Node 24.
