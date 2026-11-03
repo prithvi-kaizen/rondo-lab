@@ -1,8 +1,11 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, model_validator
 
 
 class Config(BaseModel):
     environment_version: int = Field(2, ge=1, le=2)
+    engine_revision: Literal['2.0'] = '2.0'
     width: float = Field(12, ge=10, le=25)
     height: float = Field(12, ge=10, le=25)
     dt: float = Field(.05, ge=.01, le=.05)
@@ -39,6 +42,10 @@ class Config(BaseModel):
             raise ValueError('Unknown defending strategy')
         if self.reward not in ('sparse', 'moderate', 'heavy'):
             raise ValueError('Unknown reward configuration')
+        if self.environment_version == 2:
+            window = min(self.max_hold, {0: self.max_hold, 1: .85, 2: 1.5}[self.max_touches])
+            if self.receiving_time + self.pass_preparation >= window:
+                raise ValueError('Receiving plus passing preparation must fit within the holding/touch window')
         return self
 
 
@@ -49,7 +56,7 @@ PRESETS = {
     'Legacy · 15m hexagon': {'environment_version': 1, 'width': 15, 'height': 15,
                               'loss_penalty': 2},
     'Beginner Rondo': {'defender_speed': 1, 'defender_strategy': 'chase', 'curriculum': 2},
-    'High Pressure': {'defender_speed': 3.4, 'max_hold': 1.5, 'curriculum': 5},
+    'High Pressure': {'width': 10, 'height': 10, 'defender_speed': 2.3, 'max_hold': 1.5, 'curriculum': 3},
     'One-Touch Rondo': {'max_touches': 1, 'max_hold': .7},
     'Adaptive Defenders': {'defender_strategy': 'lanes', 'defender_speed': 2.7},
     'Competitive Self-Play': {'curriculum': 6},

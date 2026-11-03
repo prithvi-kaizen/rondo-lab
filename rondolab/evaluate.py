@@ -15,7 +15,7 @@ def evaluate(checkpoint=None, model=None, team='possession', scenario='basic', c
     if checkpoint:
         model, metadata = load_checkpoint(checkpoint)
         team, scenario = metadata['team'], metadata['scenario']
-        config = config or Config(**metadata['config'])
+        config = config or Config(**(metadata['config'] | {'environment_version': metadata['environment_version']}))
     elif model:
         metadata = {'team': team, 'scenario': scenario}
     results = [generate_episode(config, seed, model, metadata, baseline=baseline, record=False) for seed in seeds]

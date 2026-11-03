@@ -64,14 +64,24 @@ def episode_metrics(world):
         passes = [e for e in events if e['type'] == 'pass']
         receptions = [e for e in events if e['type'] == 'reception']
         s, count = world.statistics, max(1, world.statistics['samples'])
+        flight_interceptions = [e for e in interceptions if e['type'] == 'interception']
+        result.update(interceptions=len(flight_interceptions), tackles=sum(e['type'] == 'tackle' for e in interceptions),
+                      defensive_contacts=len(interceptions), forced_turnovers=int(world.reason in ('interception', 'tackle')),
+                      time_to_interception=flight_interceptions[0]['time'] if flight_interceptions else None,
+                      time_to_regain=interceptions[0]['time'] if interceptions else None)
         pairs = {}
+        passing_network = {}
         for e in passes:
             pair = '-'.join(map(str, sorted([e['player'], e['target']])))
             pairs[pair] = pairs.get(pair, 0) + 1
+        for e in receptions:
+            key = f'{e["origin"]}->{e["player"]}'
+            passing_network[key] = passing_network.get(key, 0) + 1
         result.update(average_pass_distance=float(np.mean([e['distance'] for e in passes])) if passes else 0.,
                       average_ball_travel_time=float(np.mean([e['travel_time'] for e in receptions])) if receptions else 0.,
                       average_nearest_defender_distance=s['nearest_distance'] / count,
                       average_pressure=s['pressure'] / count, pressure_fraction=s['pressured'] / count,
+                      average_carrier_pressure=s['carrier_pressure'] / max(1, s['carrier_samples']),
                       average_open_lanes=s['open_lanes'] * 5 / count,
                       both_chasing_fraction=s['both_chasing'] / count,
                       coordination_fraction=s['coordinated'] / count,
@@ -80,7 +90,9 @@ def episode_metrics(world):
                       central_interceptions=s['central_interceptions'],
                       pass_direction_bins=np.histogram([e['direction'] for e in passes],
                                                        bins=np.linspace(-math.pi, math.pi, 9))[0].tolist(),
-                      pair_counts=pairs, adjacent_pass_fraction=sum((e['player'] - e['target']) % 6 in (1, 5)
+                      pair_counts=pairs, passing_network=passing_network,
+                      selected_receivers=[sum(e['target'] == i for e in passes) for i in range(6)],
+                      adjacent_pass_fraction=sum((e['player'] - e['target']) % 6 in (1, 5)
                                                                    for e in passes) / max(1, len(passes)))
         from rondolab.diagnostics import flags
         result['flags'] = flags(result)
@@ -102,16 +114,24 @@ def generate_episode(config=None, seed=42, model=None, metadata=None, baseline='
             decision_masks = {i: action_mask(w, i, (metadata or {}).get('scenario', 'adaptive')).tolist()
                               for i in range(8)} if record else {}
             actions = scripted_actions(w, simple=baseline == 'simple', random=baseline == 'random')
+            for player in w.players:
+                player.control, player.probabilities, player.value = 'scripted', None, None
             if baseline == 'random':
                 for idx in range(6):
                     actions[idx] = int(w.rng.choice(action_mask(w, idx).nonzero()[0]))
             if model is not None:
                 team = metadata['team']
                 indices = [6, 7] if team == 'pressing' else list(range(6))
-                actions.update(model.decisions(w, indices, metadata.get('scenario', 'adaptive')))
+                if team == 'possession' and metadata.get('scenario') == 'basic':
+                    indices = [w.ball.carrier] if w.ball.carrier is not None and w.ball.carrier < 6 else []
+                if indices:
+                    actions.update(model.decisions(w, indices, metadata.get('scenario', 'adaptive')))
             if opponent is not None:
                 other = list(range(6)) if metadata['team'] == 'pressing' else [6, 7]
-                actions.update(opponent.decisions(w, other, (opponent_metadata or {}).get('scenario', 'adaptive')))
+                if metadata['team'] == 'pressing' and (opponent_metadata or {}).get('scenario') == 'basic':
+                    other = [w.ball.carrier] if w.ball.carrier is not None and w.ball.carrier < 6 else []
+                if other:
+                    actions.update(opponent.decisions(w, other, (opponent_metadata or {}).get('scenario', 'adaptive')))
             w.set_actions(actions)
             if record:
                 decisions.append({'time': w.time, 'actions': actions,
@@ -138,12 +158,23 @@ def main():
     from rondolab.policies.neural import load_checkpoint
     p = argparse.ArgumentParser()
     p.add_argument('--checkpoint')
+    p.add_argument('--opponent-checkpoint')
+    p.add_argument('--config')
     p.add_argument('--seed', type=int, default=42)
     p.add_argument('--output', default='examples/replay.json')
     args = p.parse_args()
     model, metadata = load_checkpoint(args.checkpoint) if args.checkpoint else (None, None)
+    opponent, opponent_metadata = load_checkpoint(args.opponent_checkpoint) if args.opponent_checkpoint else (None, None)
+    if opponent and (not model or metadata['team'] == opponent_metadata['team'] or
+                     metadata['environment_version'] != opponent_metadata['environment_version']):
+        p.error('Replay pairs require opposing teams from the same environment version')
     config = Config(**(metadata['config'] | {'environment_version': metadata['environment_version']})) if metadata else Config()
-    replay = generate_episode(config, args.seed, model, metadata)
+    if args.config:
+        config = Config.model_validate_json(Path(args.config).read_text())
+    if model and model.environment_version != config.environment_version:
+        p.error('Checkpoint and requested football environment versions differ')
+    replay = generate_episode(config, args.seed, model, metadata, opponent=opponent,
+                              opponent_metadata=opponent_metadata)
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     Path(args.output).write_text(json.dumps(replay))
     print(json.dumps(replay['metrics'], indent=2))

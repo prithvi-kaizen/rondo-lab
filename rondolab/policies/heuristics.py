@@ -1,5 +1,5 @@
 from rondolab.legacy.heuristics import scripted_actions as legacy_actions
-from rondolab.simulation.physics import intercept_point, lane_margin
+from rondolab.simulation.physics import intercept_point, lane_margin, visible_receiving_point
 from rondolab.simulation.world import norm
 
 
@@ -27,7 +27,8 @@ def scripted_actions(world, simple=False, random=False):
     if b.carrier is None:
         choices = [(intercept_point(world, d), d) for d in defenders]
         feasible = [(point[1], norm(d.pos - point[0]), d.id) for point, d in choices if point[2]]
-        presser = min(feasible)[2] if feasible else min(defenders, key=lambda d: norm(d.pos - b.pos)).id
+        visible_target = visible_receiving_point(world)
+        presser = min(feasible)[2] if feasible else min(defenders, key=lambda d: norm(d.pos - visible_target)).id
     else:
         presser = min(defenders, key=lambda d: norm(d.pos - b.pos) + .15 * norm(d.vel)).id
     candidates = [p for p in world.players[:6] if p.id != carrier]

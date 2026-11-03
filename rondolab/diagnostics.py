@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
+from rondolab.simulation.physics import first_contact
 from rondolab.simulation.world import norm, segment_distance
 
 
@@ -50,8 +51,14 @@ def analyse_replay(replay):
     samples = frames[::max(1, c['decision_steps'])]
     nearest, lanes, pressures, coordination = [], [], [], []
     movement = np.zeros(2)
+    tunnelling = 0
     for a, b in pairwise(frames):
         movement += [norm(np.array(b['players'][i]['position']) - a['players'][i]['position']) for i in (6, 7)]
+        if c.get('environment_version', 1) == 2 and a['ball']['carrier'] is None and b['ball']['carrier'] is None:
+            for i in (6, 7):
+                tunnelling += int(first_contact(np.array(a['ball']['position']), np.array(b['ball']['position']),
+                                               np.array(a['players'][i]['position']), np.array(b['players'][i]['position']),
+                                               c['interception_radius']) is not None)
     for f in samples:
         ball = np.array(f['ball']['position'])
         ds = f['players'][6:]
@@ -77,13 +84,19 @@ def analyse_replay(replay):
               'both_chasing_fraction': float(np.mean(coordination)),
               'defender_movement_distance': movement.tolist(),
               'reaction_time': c['reaction_time'], 'defender_speed': c['defender_speed'],
-              'acceleration': c['acceleration'], 'ball_speed': c['ball_speed']}
+              'acceleration': c['acceleration'], 'ball_speed': c['ball_speed'], 'tunnelling_candidates': tunnelling}
     result['flags'] = flags(result)
     return result
 
 
 def flags(metrics):
     result = []
+    if metrics.get('reason') == 'holding_limit' and metrics.get('passes', 0) == 0:
+        result.append('No pass before a holding-limit turnover; inspect stalling or preparation churn.')
+    if metrics.get('reason') == 'out_of_bounds' and metrics.get('passes', 0) == 0 and metrics.get('duration', 10) < 2:
+        result.append('Early boundary exit without a completed pass; inspect termination-seeking behavior.')
+    if metrics.get('tunnelling_candidates', 0):
+        result.append('A ball segment overlaps defensive reach while remaining in flight; inspect collision tunneling.')
     bins = metrics.get('pass_direction_bins', [])
     if sum(bins) >= 5 and max(bins) / sum(bins) > .7:
         result.append('Direction concentration above 70%; inspect repeated circulation.')

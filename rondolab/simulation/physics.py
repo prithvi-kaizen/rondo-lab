@@ -34,7 +34,7 @@ def reach_distance(player, target, seconds, config):
 
 def intercept_point(world, player):
     b, c = world.ball, world.config
-    fallback = np.clip(b.pos + b.vel * .25, [.4, .4], [c.width - .4, c.height - .4])
+    fallback = visible_receiving_point(world)
     if b.carrier is not None:
         return fallback, 0., False
     speed = float(np.linalg.norm(b.vel))
@@ -48,6 +48,27 @@ def intercept_point(world, player):
         if distance <= reach_distance(player, point, seconds, c) + c.interception_radius:
             return point, float(seconds), True
     return fallback, .25, False
+
+
+def visible_receiving_point(world):
+    """Predict a receiver from the visible flight ray, never Ball.target or pending actions."""
+    b, c = world.ball, world.config
+    if b.carrier is not None:
+        return b.pos.copy()
+    speed = float(np.linalg.norm(b.vel))
+    direction = b.vel / max(speed, 1e-9)
+    candidates = []
+    for p in world.players[:6]:
+        along = float((p.pos - b.pos) @ direction)
+        seconds = along / max(speed, 1e-9)
+        if .02 < seconds < 2.5:
+            point = p.pos + p.vel * min(seconds, .4)
+            perpendicular = float(np.linalg.norm(point - b.pos - direction * float((point - b.pos) @ direction)))
+            if perpendicular < c.control_radius + .6:
+                candidates.append((seconds + perpendicular * .2, point))
+    if candidates:
+        return min(candidates, key=lambda item: item[0])[1]
+    return np.clip(b.pos + b.vel * .4, [.4, .4], [c.width - .4, c.height - .4])
 
 
 def lane_margin(world, receiver):

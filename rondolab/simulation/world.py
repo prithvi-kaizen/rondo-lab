@@ -63,6 +63,7 @@ class World(LegacyWorld):
         self.attempted_defenders = set()
         self.contact_cooldowns = {}
         self.statistics = {'samples': 0, 'nearest_distance': 0., 'pressure': 0., 'pressured': 0,
+                           'carrier_samples': 0, 'carrier_pressure': 0.,
                            'open_lanes': 0., 'both_chasing': 0, 'coordinated': 0,
                            'defender_distance': [0., 0.], 'pressured_receptions': 0,
                            'split_passes': 0, 'central_interceptions': 0}
@@ -331,6 +332,9 @@ class World(LegacyWorld):
             s['nearest_distance'] += distance
             s['pressure'] += self.pressure(self.ball.pos)
             s['pressured'] += int(distance < self.config.pressure_radius)
+            if self.ball.carrier is not None and self.ball.carrier < 6:
+                s['carrier_samples'] += 1
+                s['carrier_pressure'] += self.pressure(self.ball.pos)
             s['open_lanes'] += sum(lane_margin(self, p) > 0 for p in self.players[:6]
                                    if p.id != self.ball.carrier) / (5 if self.ball.carrier is not None else 6)
             acts = [self.actions.get(i, 0) for i in (6, 7)]
@@ -345,7 +349,8 @@ class World(LegacyWorld):
         frame = super().frame()
         for p, stored in zip(self.players, frame['players'], strict=True):
             stored.update(previous_action=p.previous_action, target=p.target.tolist(),
-                          pressure=self.pressure(p.pos), ball_distance=norm(p.pos - self.ball.pos),
+                          pressure=self.pressure(self.ball.pos if p.id >= 6 else p.pos),
+                          ball_distance=norm(p.pos - self.ball.pos),
                           last_interception_attempt=p.last_interception_attempt,
                           region=[v.tolist() for v in self.regions[p.id]] if p.id < 6 else None,
                           receiving_remaining=max(0., self.receive_delay - self.hold)

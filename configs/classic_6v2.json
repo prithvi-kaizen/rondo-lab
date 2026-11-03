@@ -1,1 +1,1 @@
-{"width":15,"height":15,"duration":40,"defender_speed":2.3,"defender_strategy":"cover_press"}
+{"environment_version":1,"width":15,"height":15,"duration":40,"ball_speed":10,"defender_speed":2.3,"defender_strategy":"cover_press","loss_penalty":2}

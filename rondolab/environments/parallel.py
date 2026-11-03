@@ -52,7 +52,7 @@ def action_mask(world, idx, scenario='adaptive'):
             if world.config.pair_limit and world.pair_count >= world.config.pair_limit and world.pair:
                 for target in world.pair:
                     mask[target + 1] = 0
-        if scenario != 'basic':
+        if scenario != 'basic' or (world.config.environment_version == 2 and world.ball.carrier != idx):
             mask[7:] = 1
     else:
         mask[:10 if world.config.environment_version == 1 else 12] = 1
@@ -164,7 +164,8 @@ class PassingEnv(gym.Env):
         w = self.parallel.world
         carrier = w.ball.carrier if w.ball.carrier is not None and w.ball.carrier < 6 else 0
         actions = scripted_actions(w)
-        actions[carrier] = int(action)
+        if w.ball.carrier is not None and w.ball.carrier < 6:
+            actions[carrier] = int(action)
         _, reward, term, trunc, infos = self.parallel.step({f'p{i}': a for i, a in actions.items()})
         new = w.ball.carrier if w.ball.carrier is not None and w.ball.carrier < 6 else carrier
         return observation(w, new), reward[f'p{carrier}'], term['p0'], trunc['p0'], infos[f'p{carrier}']
